@@ -1,5 +1,11 @@
 let isDocs = false;
 let hasConnection = true;
+let answer = {};
+
+const inputHandler = (fieldNames, fieldValues = "", type) => {
+  fieldNames.forEach((fieldName,i)=>answer[fieldName] = fieldValues[i])
+  console.log(answer);
+};
 
 const generateDocs = () => {
   const addButton = document.getElementById("add-button");
@@ -31,7 +37,6 @@ const generateSection = data => {
   const addButton = document.getElementById("add-button");
   let divSections = document.createElement("div");
 
-  console.log(getQuestions(data[0].ID).then(data=> console.log(data)))
   divSections.className = "docs-list";
   divSections.id = "docs-list";
 
@@ -57,16 +62,25 @@ const generateSection = data => {
         let div = document.createElement("div");
         let pId = document.createElement("p");
         let pName = document.createElement("p");
+        let button = document.createElement("button");
+
+        button.className = "docs-list__button";
+        button.id = "docs-list__button";
+        button.ondblclick = () =>
+          getQuestions(dataObject.ID).then(questions => {
+            generateQuestions(JSON.parse(questions));
+          });
 
         div.className = "docs-list__section";
 
         pId.innerHTML = `${dataObject.ID}`;
         pName.innerHTML = `${dataObject.Name}`;
 
+        button.prepend(div);
         div.prepend(pId);
         pId.after(pName);
 
-        divSectionsHeader.after(div);
+        divSectionsHeader.after(button);
       }
     });
   } else {
@@ -101,6 +115,121 @@ const createNewDocs = () => {
         generateSection();
       });
   }
+};
+
+const generateQuestions = questionsArray => {
+  const homeScreen = $("#page-main").detach();
+  let currentQuestion = 0;
+  let currFieldType = [];
+  let currFieldName = [];
+
+  const generateButton = (firstValue = "Да", secondValue = "Нет") =>
+    `<div class="question__answer_buttons"><button id="first-button">${firstValue}</button><button id="second-button">${secondValue}</button></div>`;
+
+  const chooseButtons = type => {
+    switch (type) {
+      case "navButtons":
+        return "<div class=\"question__nav_buttons\"><button id='back-button'>Назад</button><button id='save-button' style='display: none'>Cформировать</button><button id='next-button'>Вперед</button></div>";
+      case "Boolean":
+        return generateButton();
+      case "CalendarOrBankDays":
+        return generateButton("Календарных дней", "Банковских дней");
+      case "NoPaymentOrPartial":
+        return generateButton(
+          "Оплата произведена частично",
+          "Оплата не производилась"
+        );
+    }
+  };
+
+  const updatePage = () => {
+    $("#questions").replaceWith(generateQuestionHtml(currentQuestion));
+    $("#first-button").click(() =>
+      inputHandler(currFieldName, 1, currFieldType)
+    );
+    $("#second-button").click(() =>
+      inputHandler(currFieldName, 2, currFieldType)
+    );
+    $("#question-input").change(() =>
+      inputHandler(currFieldName, $("#question-input").val(), currFieldType)
+    );
+  };
+
+  const generateQuestionHtml = questionNum => {
+    let html = "";
+    currFieldType = [];
+    currFieldName = [];
+
+    if (questionNum === questionsArray.length - 1) {
+      $("#next-button").css("display", "none");
+      $("#save-button").css("display", "inline-block");
+    } else {
+      $("#next-button").css("display", "inline-block");
+      $("#save-button").css("display", "none");
+    }
+
+    questionsArray[questionNum].forEach(question => {
+      currFieldType.push(question.FieldType);
+      currFieldName.push(question.FieldName);
+
+      if (question.FieldType === "3") {
+        html += `<div id='question' class="question"><p>${
+          question.FieldText
+        }</p>${chooseButtons(question.LookupTable)}
+</div>`;
+      } else if (
+        question.FieldType === "2" ||
+        question.FieldType === "1" ||
+        question.FieldType === "7"
+      ) {
+        html += `<div id='question' class="question"><p>${question.FieldText}</p><input id="question-input" type="text"/>
+</div>`;
+      } else if (question.FieldType === "6") {
+        let table = "";
+        question.DetailFields.forEach(
+          tableQuestion =>
+            (table += `<div class='question-table'><p>${tableQuestion.FieldText}</p><input id="question-input" type="text"/>
+</div>`)
+        );
+        html = `<div id='question' class="question"><p>${question.FieldText}</p>${table}
+</div>`;
+      }
+    });
+    return `<div id="questions" class="questions">${html}</div>`;
+  };
+
+  $("main").append(
+    `<div id="question-page" class="question-page">
+${generateQuestionHtml(currentQuestion)}${chooseButtons("navButtons")}</div>`
+  );
+  $("#first-button").click(() => inputHandler(currFieldName, 1, currFieldType));
+  $("#second-button").click(() =>
+    inputHandler(currFieldName, 2, currFieldType)
+  );
+  $("#question-input").change(() =>
+    inputHandler(currFieldName, $("#question-input").val(), currFieldType)
+  );
+
+  $("#back-button").click(() => {
+    currentQuestion--;
+    if (currentQuestion < 0) {
+      $("#question-page").detach();
+      homeScreen.appendTo("main");
+    } else {
+      updatePage();
+    }
+  });
+  $("#next-button").click(() => {
+    currentQuestion++;
+    if (currentQuestion < questionsArray.length) {
+      updatePage();
+    }
+  });
+  $("#save-button").click(() => {
+    $("#question-page").detach();
+    homeScreen.appendTo("main");
+    console.log("Документ сформирован");
+  });
 };
 
 if (isDocs) {

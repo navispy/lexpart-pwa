@@ -92,11 +92,11 @@ footer {
 .docs-list {
   margin: 20px 100px 60px 100px;
 }
-.docs-list > div{
+.docs-list div{
   display: grid;
   grid-template-columns: 100px 1fr;
 }
-.docs-list > div p:first-child{
+.docs-list__button > div p:first-child{
   text-align: center;
 }
 .docs-list__section {
@@ -110,6 +110,12 @@ footer {
   font-weight: bold;
   font-size: 20px;
   text-align: center;
+}
+.docs-list__button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  width: 100%;
 }
 
 
