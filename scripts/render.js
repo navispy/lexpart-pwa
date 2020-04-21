@@ -2,8 +2,8 @@ let isDocs = false;
 let hasConnection = true;
 let answer = {};
 
-const inputHandler = (fieldNames, fieldValues = "", type) => {
-  fieldNames.forEach((fieldName,i)=>answer[fieldName] = fieldValues[i])
+const inputHandler = (fieldName, fieldValue = "", type) => {
+  answer[fieldName] = fieldValue;
   console.log(answer);
 };
 
@@ -123,19 +123,22 @@ const generateQuestions = questionsArray => {
   let currFieldType = [];
   let currFieldName = [];
 
-  const generateButton = (firstValue = "Да", secondValue = "Нет") =>
-    `<div class="question__answer_buttons"><button id="first-button">${firstValue}</button><button id="second-button">${secondValue}</button></div>`;
+  const generateButton = (id, firstValue = "Да", secondValue = "Нет") =>
+    `<div class="question__answer_buttons"><button id=${id +
+      1}>${firstValue}</button><button id=${id +
+      2}>${secondValue}</button></div>`;
 
-  const chooseButtons = type => {
+  const chooseButtons = (type, id) => {
     switch (type) {
       case "navButtons":
         return "<div class=\"question__nav_buttons\"><button id='back-button'>Назад</button><button id='save-button' style='display: none'>Cформировать</button><button id='next-button'>Вперед</button></div>";
       case "Boolean":
-        return generateButton();
+        return generateButton(id);
       case "CalendarOrBankDays":
-        return generateButton("Календарных дней", "Банковских дней");
+        return generateButton(id, "Календарных дней", "Банковских дней");
       case "NoPaymentOrPartial":
         return generateButton(
+          id,
           "Оплата произведена частично",
           "Оплата не производилась"
         );
@@ -143,16 +146,19 @@ const generateQuestions = questionsArray => {
   };
 
   const updatePage = () => {
-    $("#questions").replaceWith(generateQuestionHtml(currentQuestion));
-    $("#first-button").click(() =>
-      inputHandler(currFieldName, 1, currFieldType)
-    );
-    $("#second-button").click(() =>
-      inputHandler(currFieldName, 2, currFieldType)
-    );
-    $("#question-input").change(() =>
-      inputHandler(currFieldName, $("#question-input").val(), currFieldType)
-    );
+    currFieldName.forEach((fieldName, i) => {
+      let id = fieldName + i;
+      console.log(`${id + 1}`);
+      $(`#${id + 1}`).click(() =>
+        inputHandler(fieldName, 1, currFieldType[i])
+      );
+      $(`#${id + 2}`).click(() =>
+        inputHandler(fieldName, 2, currFieldType[i])
+      );
+      $(`#${id}`).change(() =>
+        inputHandler(fieldName, $(`#${id}`).val(), currFieldType[i])
+      );
+    });
   };
 
   const generateQuestionHtml = questionNum => {
@@ -168,27 +174,29 @@ const generateQuestions = questionsArray => {
       $("#save-button").css("display", "none");
     }
 
-    questionsArray[questionNum].forEach(question => {
+    questionsArray[questionNum].forEach((question, i) => {
       currFieldType.push(question.FieldType);
       currFieldName.push(question.FieldName);
+
+      let id = question.FieldName + i;
 
       if (question.FieldType === "3") {
         html += `<div id='question' class="question"><p>${
           question.FieldText
-        }</p>${chooseButtons(question.LookupTable)}
+        }</p>${chooseButtons(question.LookupTable, id)}
 </div>`;
       } else if (
         question.FieldType === "2" ||
         question.FieldType === "1" ||
         question.FieldType === "7"
       ) {
-        html += `<div id='question' class="question"><p>${question.FieldText}</p><input id="question-input" type="text"/>
+        html += `<div id='question' class="question"><p>${question.FieldText}</p><input id=${id} type="text"/>
 </div>`;
       } else if (question.FieldType === "6") {
         let table = "";
         question.DetailFields.forEach(
           tableQuestion =>
-            (table += `<div class='question-table'><p>${tableQuestion.FieldText}</p><input id="question-input" type="text"/>
+            (table += `<div class='question-table'><p>${tableQuestion.FieldText}</p><input id=${id} type="text"/>
 </div>`)
         );
         html = `<div id='question' class="question"><p>${question.FieldText}</p>${table}
@@ -202,13 +210,8 @@ const generateQuestions = questionsArray => {
     `<div id="question-page" class="question-page">
 ${generateQuestionHtml(currentQuestion)}${chooseButtons("navButtons")}</div>`
   );
-  $("#first-button").click(() => inputHandler(currFieldName, 1, currFieldType));
-  $("#second-button").click(() =>
-    inputHandler(currFieldName, 2, currFieldType)
-  );
-  $("#question-input").change(() =>
-    inputHandler(currFieldName, $("#question-input").val(), currFieldType)
-  );
+
+  updatePage();
 
   $("#back-button").click(() => {
     currentQuestion--;
@@ -216,19 +219,21 @@ ${generateQuestionHtml(currentQuestion)}${chooseButtons("navButtons")}</div>`
       $("#question-page").detach();
       homeScreen.appendTo("main");
     } else {
+      $("#questions").replaceWith(generateQuestionHtml(currentQuestion));
       updatePage();
     }
   });
   $("#next-button").click(() => {
     currentQuestion++;
     if (currentQuestion < questionsArray.length) {
+      $("#questions").replaceWith(generateQuestionHtml(currentQuestion));
       updatePage();
     }
   });
   $("#save-button").click(() => {
     $("#question-page").detach();
     homeScreen.appendTo("main");
-    console.log("Документ сформирован");
+    console.log("Документ сформирован", answer);
   });
 };
 
