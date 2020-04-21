@@ -148,16 +148,22 @@ const generateQuestions = questionsArray => {
   const updatePage = () => {
     currFieldName.forEach((fieldName, i) => {
       let id = fieldName + i;
-      console.log(`${id + 1}`);
-      $(`#${id + 1}`).click(() =>
-        inputHandler(fieldName, 1, currFieldType[i])
-      );
-      $(`#${id + 2}`).click(() =>
-        inputHandler(fieldName, 2, currFieldType[i])
-      );
-      $(`#${id}`).change(() =>
-        inputHandler(fieldName, $(`#${id}`).val(), currFieldType[i])
-      );
+      $(`#${id + 1}`).click(() => inputHandler(fieldName, 1, currFieldType[i]));
+      $(`#${id + 2}`).click(() => inputHandler(fieldName, 2, currFieldType[i]));
+      if (currFieldType[i] === "6") {
+        let tableAnswers = {};
+        for (let j = 0; j < currFieldName.length - 1; j++) {
+          let id = currFieldName[i + 1 + j] + j;
+          console.log(currFieldName[i + 1+ j]);
+          $(`#${id}`).change(
+            () => (tableAnswers[currFieldName[i + j + 1]] = $(`#${id}`).val())
+          );
+        }
+        inputHandler(fieldName, tableAnswers, currFieldType[i]);
+      } else
+        $(`#${id}`).change(() =>
+          inputHandler(fieldName, $(`#${id}`).val(), currFieldType[i])
+        );
     });
   };
 
@@ -194,11 +200,15 @@ const generateQuestions = questionsArray => {
 </div>`;
       } else if (question.FieldType === "6") {
         let table = "";
-        question.DetailFields.forEach(
-          tableQuestion =>
-            (table += `<div class='question-table'><p>${tableQuestion.FieldText}</p><input id=${id} type="text"/>
-</div>`)
-        );
+        question.DetailFields.forEach((tableQuestion, j) => {
+          let id = tableQuestion.FieldName + j;
+
+          currFieldType.push(tableQuestion.FieldType);
+          currFieldName.push(tableQuestion.FieldName);
+
+          table += `<div class='question-table'><p>${tableQuestion.FieldText}</p><input id=${id} type="text"/>
+</div>`;
+        });
         html = `<div id='question' class="question"><p>${question.FieldText}</p>${table}
 </div>`;
       }
