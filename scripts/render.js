@@ -145,9 +145,23 @@ const generateQuestions = questionsArray => {
     }
   };
 
-  const updatePage = () => {
+  const inputValidation = (fieldType, id) => {
+    if (fieldType === "7") {
+      $(`#${id}`).inputmask("99.99.9999", { placeholder: "ДД.ММ.ГГГГ" });
+    } else if (fieldType === "1") {
+      $(`#${id}`).inputmask({
+        mask: "9",
+        repeat: 255,
+        greedy: false
+      });
+    }
+  };
+
+  const handlerSettings = () => {
     currFieldName.forEach((fieldName, i) => {
       let id = fieldName + i;
+
+      inputValidation(currFieldType[i], id);
 
       $(`#${id + 1}`).click(() => inputHandler(fieldName, 1, currFieldType[i]));
       $(`#${id + 2}`).click(() => inputHandler(fieldName, 2, currFieldType[i]));
@@ -158,6 +172,8 @@ const generateQuestions = questionsArray => {
 
         for (let j = 0; j < currFieldName.length - 1; j++) {
           let id = currFieldName[i + 1 + j] + j;
+
+          inputValidation(currFieldType[i + 1 + j], id);
 
           $(`#${id}`)
             .val(
@@ -238,7 +254,7 @@ const generateQuestions = questionsArray => {
      ${chooseButtons("navButtons")}</div>`
   );
 
-  updatePage();
+  handlerSettings();
 
   $("#back-button").click(() => {
     currentQuestion--;
@@ -248,7 +264,7 @@ const generateQuestions = questionsArray => {
       homeScreen.appendTo("main");
     } else {
       $("#questions").replaceWith(generateQuestionHtml(currentQuestion));
-      updatePage();
+      handlerSettings();
     }
   });
   $("#next-button").click(() => {
@@ -256,7 +272,7 @@ const generateQuestions = questionsArray => {
 
     if (currentQuestion < questionsArray.length) {
       $("#questions").replaceWith(generateQuestionHtml(currentQuestion));
-      updatePage();
+      handlerSettings();
     }
   });
   $("#save-button").click(() => {
