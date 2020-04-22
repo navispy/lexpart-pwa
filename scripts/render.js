@@ -148,22 +148,36 @@ const generateQuestions = questionsArray => {
   const updatePage = () => {
     currFieldName.forEach((fieldName, i) => {
       let id = fieldName + i;
+
       $(`#${id + 1}`).click(() => inputHandler(fieldName, 1, currFieldType[i]));
       $(`#${id + 2}`).click(() => inputHandler(fieldName, 2, currFieldType[i]));
       if (currFieldType[i] === "6") {
-        let tableAnswers = {};
+        const tableAnswers = answer.hasOwnProperty(fieldName)
+          ? answer[fieldName]
+          : {};
+
         for (let j = 0; j < currFieldName.length - 1; j++) {
           let id = currFieldName[i + 1 + j] + j;
-          console.log(currFieldName[i + 1+ j]);
-          $(`#${id}`).change(
-            () => (tableAnswers[currFieldName[i + j + 1]] = $(`#${id}`).val())
-          );
+
+          $(`#${id}`)
+            .val(
+              `${
+                tableAnswers.hasOwnProperty(currFieldName[i + 1 + j])
+                  ? tableAnswers[currFieldName[i + 1 + j]]
+                  : ""
+              }`
+            )
+            .change(
+              () => (tableAnswers[currFieldName[i + j + 1]] = $(`#${id}`).val())
+            );
         }
         inputHandler(fieldName, tableAnswers, currFieldType[i]);
       } else
-        $(`#${id}`).change(() =>
-          inputHandler(fieldName, $(`#${id}`).val(), currFieldType[i])
-        );
+        $(`#${id}`)
+          .val(`${answer.hasOwnProperty(fieldName) ? answer[fieldName] : ""}`)
+          .change(() =>
+            inputHandler(fieldName, $(`#${id}`).val(), currFieldType[i])
+          );
     });
   };
 
@@ -187,44 +201,48 @@ const generateQuestions = questionsArray => {
       let id = question.FieldName + i;
 
       if (question.FieldType === "3") {
-        html += `<div id='question' class="question"><p>${
-          question.FieldText
-        }</p>${chooseButtons(question.LookupTable, id)}
-</div>`;
+        html += `<div id='question' class="question">
+        <p>${question.FieldText}</p>
+        ${chooseButtons(question.LookupTable, id)}</div>`;
       } else if (
         question.FieldType === "2" ||
         question.FieldType === "1" ||
         question.FieldType === "7"
       ) {
-        html += `<div id='question' class="question"><p>${question.FieldText}</p><input id=${id} type="text"/>
-</div>`;
+        html += `<div id='question' class="question"><p>${question.FieldText}</p>
+        <input id=${id} type="text"/></div>`;
       } else if (question.FieldType === "6") {
         let table = "";
+
         question.DetailFields.forEach((tableQuestion, j) => {
           let id = tableQuestion.FieldName + j;
 
           currFieldType.push(tableQuestion.FieldType);
           currFieldName.push(tableQuestion.FieldName);
 
-          table += `<div class='question-table'><p>${tableQuestion.FieldText}</p><input id=${id} type="text"/>
-</div>`;
+          table += `<div class='question-table'><p>${tableQuestion.FieldText}</p>
+          <input id=${id} type="text"/></div>`;
         });
-        html = `<div id='question' class="question"><p>${question.FieldText}</p>${table}
-</div>`;
+
+        html = `<div id='question' class="question"><p>${question.FieldText}</p>
+        ${table}</div>`;
       }
     });
+
     return `<div id="questions" class="questions">${html}</div>`;
   };
 
   $("main").append(
     `<div id="question-page" class="question-page">
-${generateQuestionHtml(currentQuestion)}${chooseButtons("navButtons")}</div>`
+     ${generateQuestionHtml(currentQuestion)}
+     ${chooseButtons("navButtons")}</div>`
   );
 
   updatePage();
 
   $("#back-button").click(() => {
     currentQuestion--;
+
     if (currentQuestion < 0) {
       $("#question-page").detach();
       homeScreen.appendTo("main");
@@ -235,6 +253,7 @@ ${generateQuestionHtml(currentQuestion)}${chooseButtons("navButtons")}</div>`
   });
   $("#next-button").click(() => {
     currentQuestion++;
+
     if (currentQuestion < questionsArray.length) {
       $("#questions").replaceWith(generateQuestionHtml(currentQuestion));
       updatePage();
