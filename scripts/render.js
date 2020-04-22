@@ -131,7 +131,7 @@ const generateQuestions = questionsArray => {
   const chooseButtons = (type, id) => {
     switch (type) {
       case "navButtons":
-        return "<div class=\"question__nav_buttons\"><button id='back-button'>Назад</button><button id='save-button' style='display: none'>Cформировать</button><button id='next-button'>Вперед</button></div>";
+        return "<div class=\"question-page__nav-buttons\"><button id='back-button'>Назад</button><button id='save-button' style='display: none'>Cформировать</button><button id='next-button'>Вперед</button></div>";
       case "Boolean":
         return generateButton(id);
       case "CalendarOrBankDays":
@@ -147,12 +147,18 @@ const generateQuestions = questionsArray => {
 
   const inputValidation = (fieldType, id) => {
     if (fieldType === "7") {
-      $(`#${id}`).inputmask("99.99.9999", { placeholder: "ДД.ММ.ГГГГ" });
+      $(`#${id}`).inputmask("99.99.9999", {
+        placeholder: "ДД:ММ:ГГГГ",
+        showMaskOnHover: false
+      });
     } else if (fieldType === "1") {
       $(`#${id}`).inputmask({
-        mask: "9",
-        repeat: 255,
-        greedy: false
+        alias: "numeric",
+        groupSeparator: " ",
+        digits: 2,
+        digitsOptional: false,
+        prefix: "",
+        placeholder: "0"
       });
     }
   };
@@ -165,6 +171,7 @@ const generateQuestions = questionsArray => {
 
       $(`#${id + 1}`).click(() => inputHandler(fieldName, 1, currFieldType[i]));
       $(`#${id + 2}`).click(() => inputHandler(fieldName, 2, currFieldType[i]));
+
       if (currFieldType[i] === "6") {
         const tableAnswers = answer.hasOwnProperty(fieldName)
           ? answer[fieldName]
@@ -187,6 +194,7 @@ const generateQuestions = questionsArray => {
               () => (tableAnswers[currFieldName[i + j + 1]] = $(`#${id}`).val())
             );
         }
+
         inputHandler(fieldName, tableAnswers, currFieldType[i]);
       } else
         $(`#${id}`)
@@ -220,13 +228,6 @@ const generateQuestions = questionsArray => {
         html += `<div id='question' class="question">
         <p>${question.FieldText}</p>
         ${chooseButtons(question.LookupTable, id)}</div>`;
-      } else if (
-        question.FieldType === "2" ||
-        question.FieldType === "1" ||
-        question.FieldType === "7"
-      ) {
-        html += `<div id='question' class="question"><p>${question.FieldText}</p>
-        <input id=${id} type="text"/></div>`;
       } else if (question.FieldType === "6") {
         let table = "";
 
@@ -236,12 +237,16 @@ const generateQuestions = questionsArray => {
           currFieldType.push(tableQuestion.FieldType);
           currFieldName.push(tableQuestion.FieldName);
 
-          table += `<div class='question-table'><p>${tableQuestion.FieldText}</p>
+          table += `<div class='question-table__item'><p>${tableQuestion.FieldText}</p>
           <input id=${id} type="text"/></div>`;
         });
 
         html = `<div id='question' class="question"><p>${question.FieldText}</p>
-        ${table}</div>`;
+        <div class="question-table">${table}</div>
+        </div>`;
+      } else {
+        html += `<div id='question' class="question"><p>${question.FieldText}</p>
+        <input id=${id} type="text"/></div>`;
       }
     });
 

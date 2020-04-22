@@ -92,11 +92,11 @@ footer {
 .docs-list {
   margin: 20px 100px 60px 100px;
 }
-.docs-list div{
+.docs-list div {
   display: grid;
   grid-template-columns: 100px 1fr;
 }
-.docs-list__button > div p:first-child{
+.docs-list__button > div p:first-child {
   text-align: center;
 }
 .docs-list__section {
@@ -118,6 +118,34 @@ footer {
   width: 100%;
 }
 
+.question-page {
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 25px;
+  border: 2px solid royalblue;
+}
+.question-page button {
+  border: 2px solid royalblue;
+  background: none;
+  min-width: 100px;
+  font-size: 16px;
+}
+.question-page input{
+  max-width: 300px;
+  height: 20px;
+  padding: 5px;
+}
+.questions {
+  margin-bottom: 20px;
+}
+.question-page__nav-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+.question-table__item {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+}
 
 @media screen and (max-width: 1200px) {
   .docs {
