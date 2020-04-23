@@ -123,10 +123,20 @@ const generateQuestions = questionsArray => {
   let currFieldType = [];
   let currFieldName = [];
 
-  const generateButton = (id, firstValue = "Да", secondValue = "Нет") =>
-    `<div class="question__answer_buttons"><button id=${id +
-      1}>${firstValue}</button><button id=${id +
-      2}>${secondValue}</button></div>`;
+  const generateButton = (
+    id,
+    buttonsValue = { firstValue: "Да", secondValue: "Нет" }
+  ) => {
+    let buttons = ``;
+    let idCount = 1;
+
+    for (let key in buttonsValue) {
+      buttons += `<button id=${id + idCount}>${buttonsValue[key]}</button>`;
+
+      idCount++;
+    }
+    return `<div class="question__answer_buttons">${buttons}</div>`;
+  };
 
   const chooseButtons = (type, id) => {
     switch (type) {
@@ -135,7 +145,10 @@ const generateQuestions = questionsArray => {
       case "Boolean":
         return generateButton(id);
       case "CalendarOrBankDays":
-        return generateButton(id, "Календарных дней", "Банковских дней");
+        return generateButton(id, {
+          1: "Календарных дней",
+          2: "Банковских дней"
+        });
       case "NoPaymentOrPartial":
         return generateButton(
           id,
@@ -152,14 +165,7 @@ const generateQuestions = questionsArray => {
         showMaskOnHover: false
       });
     } else if (fieldType === "1") {
-      $(`#${id}`).inputmask({
-        alias: "numeric",
-        groupSeparator: " ",
-        digits: 2,
-        digitsOptional: false,
-        prefix: "",
-        placeholder: "0"
-      });
+      $(`#${id}`).inputmask({ alias: "numeric" });
     }
   };
 
@@ -225,9 +231,14 @@ const generateQuestions = questionsArray => {
       let id = question.FieldName + i;
 
       if (question.FieldType === "3") {
+        const buttons =
+          "LookupSubstitute" in question
+            ? generateButton(id, question["LookupSubstitute"])
+            : chooseButtons(question.LookupTable, id); // Тут происходит генерация списка кнопок, функция generateButton генерирует спискок ответ (принимает id и обьект вида {Любое название:"значение которое тут написано будет выведено в списке ответо"}
+
         html += `<div id='question' class="question">
         <p>${question.FieldText}</p>
-        ${chooseButtons(question.LookupTable, id)}</div>`;
+        ${buttons}</div>`;
       } else if (question.FieldType === "6") {
         let table = "";
 
@@ -283,7 +294,7 @@ const generateQuestions = questionsArray => {
   $("#save-button").click(() => {
     $("#question-page").detach();
     homeScreen.appendTo("main");
-    console.log("Документ сформирован", answer);
+    console.log("Документ сформирован", JSON.stringify(answer));
   });
 };
 
