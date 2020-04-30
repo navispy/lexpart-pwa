@@ -153,7 +153,6 @@ const generateQuestions = (questionsArray) => {
   let currFieldType = [];
   let currFieldName = [];
   let hasAnswers = false;
-  let row = 0;
   let tableQuestions = {};
 
   const generateTable = () => {
@@ -161,10 +160,14 @@ const generateQuestions = (questionsArray) => {
     let tableItem = "";
 
     tableQuestions.DetailFields.forEach((tableQuestion, j) => {
-      let id = tableQuestion.FieldName + j;
+      let row = answer[tableQuestions.FieldName].length;
+      let id = tableQuestion.FieldName + j + row;
 
-      currFieldType.push(tableQuestion.FieldType);
-      currFieldName.push(tableQuestion.FieldName);
+      if (currFieldType.length === 0) {
+        currFieldType.push(tableQuestion.FieldType);
+        currFieldName.push(tableQuestion.FieldName);
+      }
+
       tableAnswers[tableQuestion.FieldName] = "";
 
       tableItem += `<div class='question-table__item'><p>${tableQuestion.FieldText}</p>
@@ -180,10 +183,10 @@ const generateQuestions = (questionsArray) => {
         tableAnswers,
       ];
     }
-    console.log(answer);
-    let listId = `question-table__list${row}`;
 
-    return `<div class="question-table__list" id = ${listId}>${tableItem}</div>`;
+    return `<div class="question-table__list" id = "question-table__list${
+      answer[tableQuestions.FieldName].length - 1
+    }">${tableItem}</div>`;
   };
   const generateButton = (
     id,
@@ -239,14 +242,6 @@ const generateQuestions = (questionsArray) => {
   const handlerSettings = () => {
     currentPage = $("#question-page");
 
-    $("#plusButton").click(() => {
-      row++;
-      $(".question-table").append(`${generateTable()}`);
-    });
-    $("#minusButton").click(() => {
-      $(`#question-table__list${row}`).detach();
-      row !== 0 ? row-- : row;
-    });
     currFieldName.forEach((fieldName, i) => {
       let id = fieldName + i;
 
@@ -258,23 +253,32 @@ const generateQuestions = (questionsArray) => {
       if (currFieldType[i] === "6") {
         const tableAnswers = answer[fieldName];
 
-        for (let j = 0; j < currFieldName.length - 1; j++) {
-          let id = currFieldName[i + 1 + j] + j;
+        for (
+          let count = 0;
+          count <= answer[tableQuestions.FieldName].length - 1;
+          count++
+        ) {
+          for (let j = 0; j < currFieldName.length - 1; j++) {
+            let id = currFieldName[i + 1 + j] + j + count;
+            let tableAnswersObj = tableAnswers[count];
 
-          inputValidation(currFieldType[i + 1 + j], id);
+            inputValidation(currFieldType[i + 1 + j], id);
 
-          $(`#${id}`)
-            .val(
-              `${
-                tableAnswers[0].hasOwnProperty(currFieldName[i + 1 + j])
-                  ? tableAnswers[0][currFieldName[i + 1 + j]]
-                  : ""
-              }`
-            )
-            .change(
-              () =>
-                (tableAnswers[0][currFieldName[i + j + 1]] = $(`#${id}`).val())
-            );
+            $(`#${id}`)
+              .val(
+                `${
+                  tableAnswersObj.hasOwnProperty(currFieldName[i + 1 + j])
+                    ? tableAnswersObj[currFieldName[i + 1 + j]]
+                    : ""
+                }`
+              )
+              .change(
+                () =>
+                  (tableAnswersObj[currFieldName[i + j + 1]] = $(
+                    `#${id}`
+                  ).val())
+              );
+          }
         }
 
         inputHandler(fieldName, tableAnswers, currFieldType[i]);
@@ -284,6 +288,19 @@ const generateQuestions = (questionsArray) => {
           .change(() =>
             inputHandler(fieldName, $(`#${id}`).val(), currFieldType[i])
           );
+    });
+  };
+
+  const buttonsSettings = () => {
+    $("#plusButton").click(() => {
+      $(".question-table").append(`${generateTable()}`);
+      handlerSettings();
+    });
+    $("#minusButton").click(() => {
+      $(
+        `#question-table__list${answer[tableQuestions.FieldName].length - 1}`
+      ).detach();
+      answer[tableQuestions.FieldName].pop();
     });
   };
 
@@ -320,16 +337,53 @@ const generateQuestions = (questionsArray) => {
         <p>${question.FieldText}</p>
         ${buttons}</div>`;
       } else if (question.FieldType === "6") {
+        let tableList = "";
+        const tableAnswers = [];
+
         tableQuestions = question;
+
+        question.DetailFields.forEach((data) => {
+          currFieldType.push(data.FieldType);
+          currFieldName.push(data.FieldName);
+        });
+
+        for (
+          let count = 0;
+          count <= answer[tableQuestions.FieldName].length - 1;
+          count++
+        ) {
+          let tableItem = "";
+
+          tableAnswers.push({});
+
+          question.DetailFields.forEach((tableQuestion, j) => {
+            let id = tableQuestion.FieldName + j + count;
+            const tableAnswersObj = tableAnswers[count];
+
+            tableAnswersObj[tableQuestion.FieldName] = "";
+
+            tableItem += `<div class='question-table__item'><p>${tableQuestion.FieldText}</p>
+          <input id=${id} type="text"/></div>`;
+          });
+
+          tableList += `<div class='question-table__list' id='question-table__list${count}'><p>${tableItem}</p></div>`;
+        }
 
         html = `<div id='question' class="question"><p>${question.FieldText}</p>
         <div class="question-table">
         <div class="question-table__buttons">
         <button id="plusButton" class="question-table__button-plus">+</button><button id="minusButton" class="question-table__button-minus">-</button>
         </div>
-        ${generateTable()}
+        ${tableList}
         </div>
         </div>`;
+
+        if (
+          !answer.hasOwnProperty(tableQuestions.FieldName) ||
+          answer[tableQuestions.FieldName] === ""
+        ) {
+          answer[tableQuestions.FieldName] = tableAnswers;
+        }
       } else {
         html += `<div id='question' class="question"><p>${question.FieldText}</p>
         <input id=${id} type="text"/></div>`;
@@ -342,6 +396,7 @@ const generateQuestions = (questionsArray) => {
   $("#question-page").prepend(`${generateQuestionHtml(currentQuestion)}`);
 
   handlerSettings();
+  buttonsSettings();
 
   $("#back-button").click(() => {
     currentQuestion--;
@@ -351,6 +406,7 @@ const generateQuestions = (questionsArray) => {
       homeScreen.appendTo("main");
     } else {
       $("#questions").replaceWith(generateQuestionHtml(currentQuestion));
+      buttonsSettings();
       handlerSettings();
     }
   });
@@ -359,6 +415,7 @@ const generateQuestions = (questionsArray) => {
 
     if (currentQuestion < questionsArray.length) {
       $("#questions").replaceWith(generateQuestionHtml(currentQuestion));
+      buttonsSettings();
       handlerSettings();
     }
   });
@@ -380,7 +437,7 @@ const generateQuestions = (questionsArray) => {
         }
       }
     }
-    console.log(hasAnswers);
+
     if (hasAnswers) {
       currentPage.detach();
       homeScreen.appendTo("main");
