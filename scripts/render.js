@@ -153,7 +153,38 @@ const generateQuestions = (questionsArray) => {
   let currFieldType = [];
   let currFieldName = [];
   let hasAnswers = false;
+  let row = 0;
+  let tableQuestions = {};
 
+  const generateTable = () => {
+    const tableAnswers = {};
+    let tableItem = "";
+
+    tableQuestions.DetailFields.forEach((tableQuestion, j) => {
+      let id = tableQuestion.FieldName + j;
+
+      currFieldType.push(tableQuestion.FieldType);
+      currFieldName.push(tableQuestion.FieldName);
+      tableAnswers[tableQuestion.FieldName] = "";
+
+      tableItem += `<div class='question-table__item'><p>${tableQuestion.FieldText}</p>
+          <input id=${id} type="text"/></div>`;
+    });
+
+    if (
+      answer.hasOwnProperty(tableQuestions.FieldName) ||
+      answer[tableQuestions.FieldName] === ""
+    ) {
+      answer[tableQuestions.FieldName] = [
+        ...answer[tableQuestions.FieldName],
+        tableAnswers,
+      ];
+    }
+    console.log(answer);
+    let listId = `question-table__list${row}`;
+
+    return `<div class="question-table__list" id = ${listId}>${tableItem}</div>`;
+  };
   const generateButton = (
     id,
     buttonsValue = { firstValue: "Да", secondValue: "Нет" }
@@ -208,6 +239,14 @@ const generateQuestions = (questionsArray) => {
   const handlerSettings = () => {
     currentPage = $("#question-page");
 
+    $("#plusButton").click(() => {
+      row++;
+      $(".question-table").append(`${generateTable()}`);
+    });
+    $("#minusButton").click(() => {
+      $(`#question-table__list${row}`).detach();
+      row !== 0 ? row-- : row;
+    });
     currFieldName.forEach((fieldName, i) => {
       let id = fieldName + i;
 
@@ -217,10 +256,7 @@ const generateQuestions = (questionsArray) => {
       $(`#${id + 2}`).click(() => inputHandler(fieldName, 2, currFieldType[i]));
 
       if (currFieldType[i] === "6") {
-        const tableAnswers =
-          answer.hasOwnProperty(fieldName) && answer[fieldName] !== [{}]
-            ? answer[fieldName]
-            : [{}];
+        const tableAnswers = answer[fieldName];
 
         for (let j = 0; j < currFieldName.length - 1; j++) {
           let id = currFieldName[i + 1 + j] + j;
@@ -244,7 +280,7 @@ const generateQuestions = (questionsArray) => {
         inputHandler(fieldName, tableAnswers, currFieldType[i]);
       } else
         $(`#${id}`)
-          .val(`${answer.hasOwnProperty(fieldName) ? answer[fieldName] : ""}`)
+          .val(`${answer[fieldName]}`)
           .change(() =>
             inputHandler(fieldName, $(`#${id}`).val(), currFieldType[i])
           );
@@ -284,35 +320,16 @@ const generateQuestions = (questionsArray) => {
         <p>${question.FieldText}</p>
         ${buttons}</div>`;
       } else if (question.FieldType === "6") {
-        let tableList = "";
-        const tableAnswers = [{}];
-
-        question.DetailFields.forEach((tableQuestion, j) => {
-          let id = tableQuestion.FieldName + j;
-
-          currFieldType.push(tableQuestion.FieldType);
-          currFieldName.push(tableQuestion.FieldName);
-
-          tableAnswers[0][tableQuestion.FieldName] = "";
-
-          tableList += `<div class='question-table__item'><p>${tableQuestion.FieldText}</p>
-          <input id=${id} type="text"/></div>`;
-        });
+        tableQuestions = question;
 
         html = `<div id='question' class="question"><p>${question.FieldText}</p>
         <div class="question-table">
         <div class="question-table__buttons">
         <button id="plusButton" class="question-table__button-plus">+</button><button id="minusButton" class="question-table__button-minus">-</button>
         </div>
-        <div class="question-table__list">${tableList}</div>
+        ${generateTable()}
         </div>
         </div>`;
-        if (
-          !answer.hasOwnProperty(question.FieldName) ||
-          answer[question.FieldName] === ""
-        ) {
-          answer[question.FieldName] = tableAnswers;
-        }
       } else {
         html += `<div id='question' class="question"><p>${question.FieldText}</p>
         <input id=${id} type="text"/></div>`;
