@@ -94,8 +94,11 @@ const generateSection = (data) => {
         button.id = "docs-list__button";
         button.ondblclick = () =>
           getQuestions(dataObject.ID).then((questions) => {
-            console.log(JSON.parse(questions)); //all data
-            generateQuestions([JSON.parse(questions)[12]]);
+            // console.log(JSON.parse(questions)); //all data
+            generateQuestions([
+              JSON.parse(questions)[12],
+              JSON.parse(questions)[0],
+            ]);
           });
 
         div.className = "docs-list__section";
@@ -343,12 +346,24 @@ const generateQuestions = (questionsArray) => {
     }
   });
   $("#save-button").click(() => {
-    for (let key in answer) {
-      if (answer[key] === "" || answer[key] === {}) {
-        hasAnswers = false;
-      } else hasAnswers = true;
-    }
+    hasAnswers = true;
 
+    for (let key in answer) {
+      if (typeof answer[key] === "object") {
+        answer[key].forEach((ans) => {
+          for (let keyInTable in ans) {
+            if (ans[keyInTable] === "") {
+              hasAnswers = false;
+            }
+          }
+        });
+      } else {
+        if (answer[key] === "") {
+          hasAnswers = false;
+        }
+      }
+    }
+    console.log(hasAnswers);
     if (hasAnswers) {
       currentPage.detach();
       homeScreen.appendTo("main");
