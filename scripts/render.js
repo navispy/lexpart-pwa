@@ -1,13 +1,15 @@
+const homeScreen = $("#page-main");
 let isDocs = false;
 let hasConnection = true;
 let answer = {};
+let currentPage = $("#page-main");
 
 const inputHandler = (fieldName, fieldValue = "", type) => {
   answer[fieldName] = fieldValue;
   console.log(answer);
 };
 
-const generateDocs = () => {
+const generateDocs = (data) => {
   const addButton = document.getElementById("add-button");
   let divDocs = document.createElement("div");
 
@@ -16,24 +18,48 @@ const generateDocs = () => {
 
   addButton.after(divDocs);
 
-  for (let i = 5; i >= 0; i--) {
-    let div = document.createElement("div");
-    let img = document.createElement("img");
-    let pName = document.createElement("p");
+  if (hasConnection) {
+    const revData = data.reverse();
 
-    div.className = `doc${i + 1}`;
-    img.src = "./images/command_new_document_color.svg";
-    img.alt = "new document";
-    pName.innerHTML = "doc";
+    revData.forEach((dataObject) => {
+      if (dataObject.ID !== "" && dataObject.Name !== "") {
+        let div = document.createElement("div");
+        let img = document.createElement("img");
+        let pName = document.createElement("p");
+        let button = document.createElement("button");
 
-    div.prepend(img);
-    img.after(pName);
+        div.className = "doc-section";
+        img.src = "./images/command_new_document_color.svg";
+        img.alt = "new document";
+        pName.innerHTML = `${dataObject.Name}`;
 
-    divDocs.prepend(div);
+        button.className = "doc-button";
+        button.id = "doc-button";
+        button.ondblclick = () =>
+          getQuestions(dataObject.ID).then((questions) => {
+            generateQuestions(JSON.parse(questions));
+          });
+
+        button.prepend(div);
+        div.prepend(img);
+        img.after(pName);
+
+        divDocs.prepend(button);
+      }
+    });
+  } else {
+    let p = document.createElement("p");
+
+    p.innerHTML = "Нет соединения с сервером";
+
+    p.className = "doc-errors";
+
+    addButton.after(divDocs);
+    divDocs.prepend(p);
   }
 };
 
-const generateSection = data => {
+const generateSection = (data) => {
   const addButton = document.getElementById("add-button");
   let divSections = document.createElement("div");
 
@@ -57,7 +83,7 @@ const generateSection = data => {
     divSectionsHeader.prepend(pNumber);
     pNumber.after(pDoc);
 
-    revData.forEach(dataObject => {
+    revData.forEach((dataObject) => {
       if (dataObject.ID !== "" && dataObject.Name !== "") {
         let div = document.createElement("div");
         let pId = document.createElement("p");
@@ -67,8 +93,9 @@ const generateSection = data => {
         button.className = "docs-list__button";
         button.id = "docs-list__button";
         button.ondblclick = () =>
-          getQuestions(dataObject.ID).then(questions => {
-            generateQuestions(JSON.parse(questions));
+          getQuestions(dataObject.ID).then((questions) => {
+            console.log(JSON.parse(questions)); //all data
+            generateQuestions([JSON.parse(questions)[12]]);
           });
 
         div.className = "docs-list__section";
@@ -102,26 +129,27 @@ const createNewDocs = () => {
 
   if (isDocs) {
     divSections.remove();
-    generateDocs();
-  } else {
-    divDocs.remove();
     getSections()
-      .then(data => {
-        generateSection(data);
+      .then((data) => {
+        generateDocs(data);
       })
-      .catch(reason => {
+      .catch((reason) => {
         console.log("mistake", reason);
         hasConnection = false;
-        generateSection();
+        generateDocs();
       });
+  } else {
+    divDocs.remove();
+    generateSection([{ ID: "1", Name: "some doc" }]);
   }
 };
 
-const generateQuestions = questionsArray => {
-  const homeScreen = $("#page-main").detach();
+const generateQuestions = (questionsArray) => {
+  homeScreen.detach();
   let currentQuestion = 0;
   let currFieldType = [];
   let currFieldName = [];
+  let hasAnswers = false;
 
   const generateButton = (
     id,
@@ -147,7 +175,7 @@ const generateQuestions = questionsArray => {
       case "CalendarOrBankDays":
         return generateButton(id, {
           1: "Календарных дней",
-          2: "Банковских дней"
+          2: "Банковских дней",
         });
       case "NoPaymentOrPartial":
         return generateButton(
@@ -158,11 +186,16 @@ const generateQuestions = questionsArray => {
     }
   };
 
+  $("main").append(
+    `<div id="question-page" class="question-page">
+     ${chooseButtons("navButtons")}</div>`
+  );
+
   const inputValidation = (fieldType, id) => {
     if (fieldType === "7") {
       $(`#${id}`).inputmask("99.99.9999", {
         placeholder: "ДД:ММ:ГГГГ",
-        showMaskOnHover: false
+        showMaskOnHover: false,
       });
     } else if (fieldType === "1") {
       $(`#${id}`).inputmask({ alias: "numeric" });
@@ -170,6 +203,8 @@ const generateQuestions = questionsArray => {
   };
 
   const handlerSettings = () => {
+    currentPage = $("#question-page");
+
     currFieldName.forEach((fieldName, i) => {
       let id = fieldName + i;
 
@@ -179,9 +214,10 @@ const generateQuestions = questionsArray => {
       $(`#${id + 2}`).click(() => inputHandler(fieldName, 2, currFieldType[i]));
 
       if (currFieldType[i] === "6") {
-        const tableAnswers = answer.hasOwnProperty(fieldName)
-          ? answer[fieldName]
-          : {};
+        const tableAnswers =
+          answer.hasOwnProperty(fieldName) && answer[fieldName] !== [{}]
+            ? answer[fieldName]
+            : [{}];
 
         for (let j = 0; j < currFieldName.length - 1; j++) {
           let id = currFieldName[i + 1 + j] + j;
@@ -191,13 +227,14 @@ const generateQuestions = questionsArray => {
           $(`#${id}`)
             .val(
               `${
-                tableAnswers.hasOwnProperty(currFieldName[i + 1 + j])
-                  ? tableAnswers[currFieldName[i + 1 + j]]
+                tableAnswers[0].hasOwnProperty(currFieldName[i + 1 + j])
+                  ? tableAnswers[0][currFieldName[i + 1 + j]]
                   : ""
               }`
             )
             .change(
-              () => (tableAnswers[currFieldName[i + j + 1]] = $(`#${id}`).val())
+              () =>
+                (tableAnswers[0][currFieldName[i + j + 1]] = $(`#${id}`).val())
             );
         }
 
@@ -211,7 +248,7 @@ const generateQuestions = questionsArray => {
     });
   };
 
-  const generateQuestionHtml = questionNum => {
+  const generateQuestionHtml = (questionNum) => {
     let html = "";
     currFieldType = [];
     currFieldName = [];
@@ -228,6 +265,10 @@ const generateQuestions = questionsArray => {
       currFieldType.push(question.FieldType);
       currFieldName.push(question.FieldName);
 
+      if (!answer.hasOwnProperty(question.FieldName)) {
+        answer[question.FieldName] = "";
+      }
+
       let id = question.FieldName + i;
 
       if (question.FieldType === "3") {
@@ -240,7 +281,8 @@ const generateQuestions = questionsArray => {
         <p>${question.FieldText}</p>
         ${buttons}</div>`;
       } else if (question.FieldType === "6") {
-        let table = "";
+        let tableList = "";
+        const tableAnswers = [{}];
 
         question.DetailFields.forEach((tableQuestion, j) => {
           let id = tableQuestion.FieldName + j;
@@ -248,13 +290,26 @@ const generateQuestions = questionsArray => {
           currFieldType.push(tableQuestion.FieldType);
           currFieldName.push(tableQuestion.FieldName);
 
-          table += `<div class='question-table__item'><p>${tableQuestion.FieldText}</p>
+          tableAnswers[0][tableQuestion.FieldName] = "";
+
+          tableList += `<div class='question-table__item'><p>${tableQuestion.FieldText}</p>
           <input id=${id} type="text"/></div>`;
         });
 
         html = `<div id='question' class="question"><p>${question.FieldText}</p>
-        <div class="question-table">${table}</div>
+        <div class="question-table">
+        <div class="question-table__buttons">
+        <button id="plusButton" class="question-table__button-plus">+</button><button id="minusButton" class="question-table__button-minus">-</button>
+        </div>
+        <div class="question-table__list">${tableList}</div>
+        </div>
         </div>`;
+        if (
+          !answer.hasOwnProperty(question.FieldName) ||
+          answer[question.FieldName] === ""
+        ) {
+          answer[question.FieldName] = tableAnswers;
+        }
       } else {
         html += `<div id='question' class="question"><p>${question.FieldText}</p>
         <input id=${id} type="text"/></div>`;
@@ -264,11 +319,7 @@ const generateQuestions = questionsArray => {
     return `<div id="questions" class="questions">${html}</div>`;
   };
 
-  $("main").append(
-    `<div id="question-page" class="question-page">
-     ${generateQuestionHtml(currentQuestion)}
-     ${chooseButtons("navButtons")}</div>`
-  );
+  $("#question-page").prepend(`${generateQuestionHtml(currentQuestion)}`);
 
   handlerSettings();
 
@@ -276,7 +327,7 @@ const generateQuestions = questionsArray => {
     currentQuestion--;
 
     if (currentQuestion < 0) {
-      $("#question-page").detach();
+      currentPage.detach();
       homeScreen.appendTo("main");
     } else {
       $("#questions").replaceWith(generateQuestionHtml(currentQuestion));
@@ -292,21 +343,34 @@ const generateQuestions = questionsArray => {
     }
   });
   $("#save-button").click(() => {
-    $("#question-page").detach();
-    homeScreen.appendTo("main");
-    console.log("Документ сформирован", JSON.stringify(answer));
+    for (let key in answer) {
+      if (answer[key] === "" || answer[key] === {}) {
+        hasAnswers = false;
+      } else hasAnswers = true;
+    }
+
+    if (hasAnswers) {
+      currentPage.detach();
+      homeScreen.appendTo("main");
+      alert("Документ сформирован");
+      console.log("Документ сформирован", JSON.stringify(answer));
+    } else alert("Дайте ответ на все вопросы");
   });
 };
 
 if (isDocs) {
-  generateDocs();
-} else
   getSections()
-    .then(data => {
-      generateSection(data);
+    .then((data) => {
+      generateDocs(data);
     })
-    .catch(reason => {
+    .catch((reason) => {
       console.log("mistake", reason);
       hasConnection = false;
-      generateSection();
+      generateDocs();
     });
+} else generateSection([{ ID: "1", Name: "some doc" }]);
+
+$("#homeButton").click(() => {
+  currentPage.detach();
+  homeScreen.appendTo("main");
+});

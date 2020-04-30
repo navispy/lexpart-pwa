@@ -44,16 +44,20 @@ main {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
 }
-.docs > div img {
+.docs div {
   border: 1px solid transparent;
 }
-.docs > div img:hover {
+.docs div:hover {
   border: 1px solid rgb(111, 135, 206);
 }
 .docs p {
   text-align: center;
+  font-size: 18px;
   margin: 0;
-  font-size: 20px;
+}
+.doc-button {
+  border: none;
+  background: none;
 }
 
 footer {
@@ -94,7 +98,11 @@ footer {
 }
 .docs-list div {
   display: grid;
-  grid-template-columns: 100px 1fr;
+  grid-template-columns: 80px 1fr;
+}
+.docs-list div p:first-child{
+  justify-self: start;
+  margin-left: 5px;
 }
 .docs-list__button > div p:first-child {
   text-align: center;
@@ -117,6 +125,9 @@ footer {
   cursor: pointer;
   width: 100%;
 }
+.docs-list__button p{
+  font-size: 20px;
+}
 
 .question-page {
   max-width: 400px;
@@ -130,7 +141,7 @@ footer {
   min-width: 100px;
   font-size: 16px;
 }
-.question-page input{
+.question-page input {
   max-width: 300px;
   height: 20px;
   padding: 5px;
@@ -145,6 +156,9 @@ footer {
 .question-table__item {
   display: grid;
   grid-template-columns: 1fr 2fr;
+}
+.question-table__buttons {
+  margin-bottom: 10px;
 }
 
 @media screen and (max-width: 1200px) {
