@@ -154,14 +154,19 @@ const generateQuestions = (questionsArray) => {
   let currFieldName = [];
   let hasAnswers = false;
   let tableQuestions = {};
+  let selectedTableList = [];
+
+  const updateId = (id) => {
+    return $(`#${id}`).length ? `${id}1` : id;
+  };
 
   const generateTable = () => {
     const tableAnswers = {};
     let tableItem = "";
-
     tableQuestions.DetailFields.forEach((tableQuestion, j) => {
-      let row = answer[tableQuestions.FieldName].length;
-      let id = tableQuestion.FieldName + j + row;
+      let id = updateId(
+        tableQuestion.FieldName + j + answer[tableQuestions.FieldName].length
+      );
 
       if (currFieldType.length === 0) {
         currFieldType.push(tableQuestion.FieldType);
@@ -184,10 +189,11 @@ const generateQuestions = (questionsArray) => {
       ];
     }
 
-    return `<div class="question-table__list" id = "question-table__list${
-      answer[tableQuestions.FieldName].length - 1
-    }">${tableItem}</div>`;
+    return `<div class="question-table__list" id = ${updateId(
+      `question-table__list${answer[tableQuestions.FieldName].length - 1}`
+    )}>${tableItem}</div>`;
   };
+
   const generateButton = (
     id,
     buttonsValue = { firstValue: "Да", secondValue: "Нет" }
@@ -259,7 +265,9 @@ const generateQuestions = (questionsArray) => {
           count++
         ) {
           for (let j = 0; j < currFieldName.length - 1; j++) {
-            let id = currFieldName[i + 1 + j] + j + count;
+            let id = $(`#${currFieldName[i + 1 + j] + j + count + 1}`).length
+              ? updateId(currFieldName[i + 1 + j] + j + count)
+              : currFieldName[i + 1 + j] + j + count;
             let tableAnswersObj = tableAnswers[count];
 
             inputValidation(currFieldType[i + 1 + j], id);
@@ -291,17 +299,52 @@ const generateQuestions = (questionsArray) => {
     });
   };
 
+  const selectTableQuestion = (plusButton = false) => {
+    const tableListHandler = (num) => {
+      let id = $(`#question-table__list${num}1`).length
+        ? updateId(`question-table__list${num}`)
+        : `question-table__list${num}`;
+
+      $(`#${id}`).click(function () {
+        $(this).toggleClass("selected");
+        selectedTableList.every((tableList) => tableList.id !== `#${id}`)
+          ? selectedTableList.push({
+              id: `#${id}`,
+              number: num,
+            })
+          : (selectedTableList = selectedTableList.filter(
+              (item) => item.id !== `#${id}`
+            ));
+        console.log(selectedTableList);
+      });
+    };
+
+    plusButton
+      ? tableListHandler(answer[tableQuestions.FieldName].length - 1)
+      : answer[tableQuestions.FieldName].forEach((item, count) => {
+          tableListHandler(count);
+        });
+  };
+
   const buttonsSettings = () => {
+    selectedTableList = [];
+
     $("#plusButton").click(() => {
       $(".question-table").append(`${generateTable()}`);
+      selectTableQuestion(true);
       handlerSettings();
     });
     $("#minusButton").click(() => {
-      $(
-        `#question-table__list${answer[tableQuestions.FieldName].length - 1}`
-      ).detach();
-      answer[tableQuestions.FieldName].pop();
+      selectedTableList.forEach((tableList) => {
+        $(tableList.id).detach();
+        answer[tableQuestions.FieldName].splice(tableList.number, 1);
+        selectedTableList = selectedTableList.filter(
+          (item) => item.id !== tableList.id
+        );
+      });
+      console.log(answer[tableQuestions.FieldName]);
     });
+    selectTableQuestion();
   };
 
   const generateQuestionHtml = (questionNum) => {
@@ -366,7 +409,7 @@ const generateQuestions = (questionsArray) => {
           <input id=${id} type="text"/></div>`;
           });
 
-          tableList += `<div class='question-table__list' id='question-table__list${count}'><p>${tableItem}</p></div>`;
+          tableList += `<div class='question-table__list' id='question-table__list${count}'>${tableItem}</div>`;
         }
 
         html = `<div id='question' class="question"><p>${question.FieldText}</p>

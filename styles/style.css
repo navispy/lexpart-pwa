@@ -157,8 +157,12 @@ footer {
   display: grid;
   grid-template-columns: 1fr 2fr;
 }
-.question-table__buttons {
-  margin-bottom: 10px;
+.question-table__list {
+  padding: 10px 10px 0 10px;
+  margin-top: 10px;
+}
+.selected {
+  background: royalblue;
 }
 
 @media screen and (max-width: 1200px) {
