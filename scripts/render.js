@@ -315,7 +315,6 @@ const generateQuestions = (questionsArray) => {
           : (selectedTableList = selectedTableList.filter(
               (item) => item.id !== `#${id}`
             ));
-        console.log(selectedTableList);
       });
     };
 
@@ -330,7 +329,7 @@ const generateQuestions = (questionsArray) => {
     selectedTableList = [];
 
     $("#plusButton").click(() => {
-      $(".question-table").append(`${generateTable()}`);
+      $(".question-table__main-list").append(`${generateTable()}`);
       selectTableQuestion(true);
       handlerSettings();
     });
@@ -342,7 +341,6 @@ const generateQuestions = (questionsArray) => {
           (item) => item.id !== tableList.id
         );
       });
-      console.log(answer[tableQuestions.FieldName]);
     });
     selectTableQuestion();
   };
@@ -417,7 +415,9 @@ const generateQuestions = (questionsArray) => {
         <div class="question-table__buttons">
         <button id="plusButton" class="question-table__button-plus">+</button><button id="minusButton" class="question-table__button-minus">-</button>
         </div>
+        <div class="question-table__main-list">
         ${tableList}
+        </div>
         </div>
         </div>`;
 

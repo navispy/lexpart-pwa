@@ -141,6 +141,10 @@ footer {
   min-width: 100px;
   font-size: 16px;
 }
+.question-page button:hover {
+  background: royalblue;
+  color: white;
+}
 .question-page input {
   max-width: 300px;
   height: 20px;
@@ -152,6 +156,11 @@ footer {
 .question-page__nav-buttons {
   display: flex;
   justify-content: space-between;
+}
+
+.question-table__main-list{
+  overflow: auto;
+  max-height: 400px;
 }
 .question-table__item {
   display: grid;
