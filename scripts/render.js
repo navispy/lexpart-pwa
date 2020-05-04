@@ -2,7 +2,7 @@ const homeScreen = $("#page-main");
 let isDocs = false;
 let hasConnection = true;
 let answer = {};
-let currentPage = $("#page-main");
+let currentPage = homeScreen;
 
 const inputHandler = (fieldName, fieldValue = "", type) => {
   answer[fieldName] = fieldValue;
@@ -253,8 +253,22 @@ const generateQuestions = (questionsArray) => {
 
       inputValidation(currFieldType[i], id);
 
-      $(`#${id + 1}`).click(() => inputHandler(fieldName, 1, currFieldType[i]));
-      $(`#${id + 2}`).click(() => inputHandler(fieldName, 2, currFieldType[i]));
+      answer[fieldName] === 1
+        ? $(`#${id + 1}`).addClass("clicked")
+        : answer[fieldName] === 2
+        ? $(`#${id + 2}`).addClass("clicked")
+        : "";
+
+      $(`#${id + 1}`).click(function () {
+        $(`#${id + 2}`).removeClass("clicked");
+        $(this).toggleClass("clicked");
+        inputHandler(fieldName, 1, currFieldType[i]);
+      });
+      $(`#${id + 2}`).click(function () {
+        $(`#${id + 1}`).removeClass("clicked");
+        $(this).toggleClass("clicked");
+        inputHandler(fieldName, 2, currFieldType[i]);
+      });
 
       if (currFieldType[i] === "6") {
         const tableAnswers = answer[fieldName];
@@ -280,12 +294,9 @@ const generateQuestions = (questionsArray) => {
                     : ""
                 }`
               )
-              .change(
-                () =>
-                  (tableAnswersObj[currFieldName[i + j + 1]] = $(
-                    `#${id}`
-                  ).val())
-              );
+              .change(function () {
+                tableAnswersObj[currFieldName[i + j + 1]] = $(this).val();
+              });
           }
         }
 
@@ -333,6 +344,7 @@ const generateQuestions = (questionsArray) => {
       selectTableQuestion(true);
       handlerSettings();
     });
+
     $("#minusButton").click(() => {
       selectedTableList.forEach((tableList) => {
         $(tableList.id).detach();
@@ -342,7 +354,6 @@ const generateQuestions = (questionsArray) => {
         );
       });
     });
-    selectTableQuestion();
   };
 
   const generateQuestionHtml = (questionNum) => {
@@ -466,7 +477,7 @@ const generateQuestions = (questionsArray) => {
     hasAnswers = true;
 
     for (let key in answer) {
-      if (typeof answer[key] === "object") {
+      if (typeof answer[key] === "object" && answer[key].length !== 0) {
         answer[key].forEach((ans) => {
           for (let keyInTable in ans) {
             if (ans[keyInTable] === "") {
@@ -475,7 +486,7 @@ const generateQuestions = (questionsArray) => {
           }
         });
       } else {
-        if (answer[key] === "") {
+        if (answer[key] === "" || answer[key].length === 0) {
           hasAnswers = false;
         }
       }
