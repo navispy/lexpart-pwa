@@ -50,9 +50,6 @@ h4 {
   width: 1170px;
   padding: 0 30px;
 }
-.section__container {
-  margin-top: 70px;
-}
 .header__info-contacts a:hover,
 a:hover {
   color: #cbb93a;
@@ -61,6 +58,7 @@ a:hover {
 }
 .section {
   display: flex;
+  margin-top: 70px;
   justify-content: center;
 }
 .startup__media-item a:hover,
@@ -199,6 +197,9 @@ a:hover {
   overflow: hidden;
   position: relative;
 }
+.carousel .section__container {
+  margin-top: 70px;
+}
 .carousel__slides {
   width: calc(100% * 2);
   position: relative;
@@ -264,7 +265,8 @@ a:hover {
   grid-column-gap: 30px;
 }
 .startup__question h2,
-.features__heading h2 {
+.features__heading h2,
+.pricing__heading h2 {
   font-weight: 700;
   font-size: 30px;
   line-height: 1.1;
@@ -316,6 +318,72 @@ a:hover {
   grid-column-gap: 35px;
 }
 
+/*Pricing section*/
+.pricing {
+  background: rgba(255, 247, 247, 0.52);
+  font-size: 18px;
+}
+.pricing__heading {
+  margin-top: 20px;
+}
+.pricing__table {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-column-gap: 30px;
+}
+.pricing__table-names,
+.pricing__table-item {
+  background-color: white;
+  padding: 20px 15px;
+  text-align: center;
+}
+.pricing__table-names,
+.pricing__table-item__list {
+  display: grid;
+  grid-template-areas: ".";
+  align-items: center;
+}
+.pricing__table-item__list h5,
+.pricing__table-names h5 {
+  font-weight: 500;
+  padding: 15px 0;
+}
+.pricing__table-names {
+  align-items: end;
+  height: 400px;
+}
+.pricing__table-item__list h5 {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.37);
+}
+.pricing__table-item__present h5 {
+  border: none;
+  padding: 0;
+}
+.pricing__table-item__present {
+  margin-top: 10px;
+}
+.pricing__table-item__button {
+  margin-top: 30px;
+  font-family: "Oswald", sans-serif;
+  color: white;
+  font-size: 14px;
+  font-weight: 400;
+  padding: 9px 46px;
+  border-radius: 25px;
+  background: #3391aa;
+  border: 1px solid #3391aa;
+}
+.pricing__table-item__button:hover {
+  background: #FF9633;
+  border: 1px solid #FF9633;
+  color: #000;
+  transition: opacity, 0.5s;
+}
+.button_margin {
+  margin-top: 47px;
+}
+
 /*Adaptation*/
 @media only screen and (max-width: 1120px) {
   .header__nav-menu {
@@ -324,9 +392,14 @@ a:hover {
   .startup__media-item {
     grid-column-gap: 20px;
   }
+  .pricing {
+    font-size: 16px;
+  }
 }
-
 @media only screen and (max-width: 1000px) {
+  .pricing__table {
+    grid-column-gap: 15px;
+  }
   .startup__media-list {
     grid-row-gap: 40px;
   }
@@ -364,6 +437,26 @@ a:hover {
     grid-template-columns: 1fr 10fr;
   }
 }
+@media only screen and (max-width: 920px) {
+  .pricing__table-item__list,
+  .pricing__table-names {
+    display: none;
+  }
+  .pricing__table-item {
+    background-color: transparent;
+    padding: 0;
+  }
+  .pricing__table-item__button,
+  .button_margin {
+    margin-top: 0;
+    width: 100%;
+  }
+  .pricing__table {
+    grid-template-columns: none;
+    grid-template-rows: repeat(3, 1fr);
+    grid-row-gap: 20px;
+  }
+}
 @media only screen and (max-width: 650px) {
   .startup .section__container {
     grid-template-areas: ".";
@@ -396,7 +489,8 @@ a:hover {
   }
 }
 @media only screen and (max-width: 400px) {
-  .startup__media-list,.features__media-list  {
+  .startup__media-list,
+  .features__media-list {
     grid-row-gap: 20px;
   }
   .carousel__slide-caption h1 {
@@ -408,7 +502,9 @@ a:hover {
   .header__info-contacts {
     grid-column-gap: 5px;
   }
-  .startup__question h2 {
+  .startup__question h2,
+  .features__heading h2,
+  .pricing__heading h2 {
     font-size: 25px;
   }
   .header__nav-logo img {
