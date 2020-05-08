@@ -9,6 +9,7 @@
   text-decoration: none;
   color: inherit;
   box-sizing: border-box;
+  outline: none;
 }
 body {
   font-family: "Oswald", sans-serif;
@@ -46,7 +47,8 @@ h4 {
 
 /*Common styles*/
 .header__container,
-.section__container,.footer__container {
+.section__container,
+.footer__container {
   width: 1170px;
   padding: 0 30px;
 }
@@ -362,9 +364,9 @@ a:hover {
 .pricing__table-item__present {
   margin-top: 10px;
 }
-.pricing__table-item__button,
-.service__button {
-  margin-top: 30px;
+.pricing__table-item__button a,
+.service__button a {
+  display: block;
   font-family: "Oswald", sans-serif;
   color: white;
   font-size: 14px;
@@ -374,8 +376,12 @@ a:hover {
   background: #3391aa;
   border: 1px solid #3391aa;
 }
-.pricing__table-item__button:hover,
-.service__button:hover {
+.pricing__table-item__button,
+.service__button {
+  margin-top: 30px;
+}
+.pricing__table-item__button a:hover,
+.service__button a:hover {
   background: #ff9633;
   border: 1px solid #ff9633;
   color: #000;
@@ -400,36 +406,36 @@ a:hover {
 }
 
 /*Service section*/
-.service{
+.service {
   position: relative;
-}
-.service__heading{
   text-align: center;
 }
-.service__heading a{
+.service__heading a {
   color: #3391aa;
 }
-.service__heading p{
+.service__heading p {
   font-size: 18px;
 }
 .service__buttons {
   display: grid;
- margin: 0 auto;
+  margin: 0 auto;
   width: 50%;
   grid-template-areas: ". .";
   justify-items: center;
   grid-column-gap: 20px;
 }
-.service__button {
+.service__button a {
   width: 165px;
   padding: 9px 0;
 }
-.left-shape,.right-shape{
+.left-shape,
+.right-shape {
   position: absolute;
   z-index: -1;
 }
 .left-shape {
   top: 110px;
+  left: 40px;
 }
 .right-shape {
   right: 40px;
@@ -437,7 +443,7 @@ a:hover {
 }
 
 /*Footer*/
-.footer{
+.footer {
   margin-top: 70px;
   background: linear-gradient(to top, #3391aa, #add3dd);
   padding: 20px 0;
@@ -450,7 +456,7 @@ a:hover {
   font-size: 18px;
   margin-bottom: 10px;
 }
-.footer__container{
+.footer__container {
   width: 100%;
 }
 .footer__info {
@@ -459,13 +465,13 @@ a:hover {
   grid-template-areas: ". .";
   justify-items: center;
 }
-.footer__contact h3{
+.footer__contact h3 {
   font-size: 20px;
   color: #534444;
   font-weight: bold;
   margin-top: 20px;
 }
-.footer__form-heading{
+.footer__form-heading {
   padding-top: 25px;
 }
 .footer__form input {
@@ -475,13 +481,13 @@ a:hover {
   line-height: inherit;
 }
 .footer__form input[type="submit"] {
-  background: #00C1DF;
+  background: #00c1df;
   border: none;
   margin-left: -4px;
   font-weight: bold;
 }
 .footer__form input[type="submit"]:hover {
-  background: #FD9D45;
+  background: #fd9d45;
   transition: opacity, 0.9s;
 }
 
@@ -505,7 +511,7 @@ a:hover {
     grid-row-gap: 40px;
   }
   .header__nav-logo img {
-    max-width: 170px;
+    max-width: 160px;
   }
   .header__nav-menu {
     display: none;
@@ -547,14 +553,17 @@ a:hover {
     background-color: transparent;
     padding: 0;
   }
-  .pricing__table-item__button,
-  .button_margin {
+  .button_margin,
+  .pricing__table-item__button {
     margin-top: 0;
     width: 100%;
   }
+  .pricing__table-item__button a {
+    font-size: 16px;
+  }
   .pricing__table {
     grid-template-columns: none;
-    grid-template-rows: repeat(3, 1fr);
+    grid-template-areas: ".";
     grid-row-gap: 20px;
   }
   .service__buttons {
@@ -583,6 +592,21 @@ a:hover {
   }
 }
 @media only screen and (max-width: 550px) {
+  .partners {
+    padding: 40px 0;
+  }
+  .left-shape {
+    top: 190px;
+    left: 10px;
+  }
+  .right-shape {
+    right: 10px;
+    top: 0;
+  }
+  .service__container-fluid img {
+    max-width: 40%;
+    height: auto;
+  }
   .features__media-item {
     grid-column-gap: 20px;
   }
@@ -610,9 +634,13 @@ a:hover {
   }
   .service__buttons {
     margin-top: 20px;
-    grid-template-areas: "."
-  ".";
+    grid-template-areas:
+      "."
+      ".";
     grid-row-gap: 20px;
+  }
+  .section {
+    margin-top: 40px;
   }
 }
 @media only screen and (max-width: 400px) {
