@@ -266,12 +266,14 @@ a:hover {
 }
 .startup__question h2,
 .features__heading h2,
-.pricing__heading h2 {
+.pricing__heading h2,
+.partners__heading h2 {
   font-weight: 700;
   font-size: 30px;
   line-height: 1.1;
 }
-.startup__question-img img {
+.startup__question-img img,
+.partners__image img {
   max-width: 76%;
   height: auto;
 }
@@ -375,13 +377,27 @@ a:hover {
   border: 1px solid #3391aa;
 }
 .pricing__table-item__button:hover {
-  background: #FF9633;
-  border: 1px solid #FF9633;
+  background: #ff9633;
+  border: 1px solid #ff9633;
   color: #000;
   transition: opacity, 0.5s;
 }
 .button_margin {
   margin-top: 47px;
+}
+
+/*Partners section*/
+.partners {
+  background: #e4eff1;
+  padding: 60px 0px;
+}
+.partners__container{
+  display: grid;
+  grid-template-areas: ". . .";
+}
+.partners__image{
+  display: flex;
+  justify-content: center;
 }
 
 /*Adaptation*/
@@ -458,6 +474,10 @@ a:hover {
   }
 }
 @media only screen and (max-width: 650px) {
+  .partners__container{
+    grid-template-areas: ".";
+    grid-row-gap: 30px;
+  }
   .startup .section__container {
     grid-template-areas: ".";
     grid-row-gap: 30px;
@@ -503,6 +523,7 @@ a:hover {
     grid-column-gap: 5px;
   }
   .startup__question h2,
+  .partners__heading h2,
   .features__heading h2,
   .pricing__heading h2 {
     font-size: 25px;
