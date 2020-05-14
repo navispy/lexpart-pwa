@@ -1,4 +1,4 @@
-const url = "http://lexpart.by/skyforce/jurbot-api/get_sections.php";
+const url = "../../OSPanel/domains/localhost/skyforce/jurbot-api/get_sections/php";
 
 async function getSections() {
   const response = await fetch(url);
