@@ -96,7 +96,7 @@ const generateSection = (data) => {
           getQuestions(dataObject.ID).then((questions) => {
             // console.log(JSON.parse(questions)); //all data
             generateQuestions([
-              JSON.parse(questions)[12],
+              JSON.parse(questions)[13],
               JSON.parse(questions)[0],
             ]);
           });
@@ -380,6 +380,23 @@ const generateQuestions = (questionsArray) => {
       let id = question.FieldName + i;
 
       if (question.FieldType === "3") {
+        $.ajax({
+          async: false,
+          url: "../../skyforce/server.php",
+          type: "POST",
+          dataType: "json",
+          data: {
+            function: "getLookupValues",
+          },
+          success: function (data) {
+            console.log(data)
+            }
+          ,
+          error: function (data) {
+            console.log(data)
+          },
+        });
+
         const buttons =
           "LookupSubstitute" in question
             ? generateButton(id, question["LookupSubstitute"])

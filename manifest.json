@@ -6,7 +6,7 @@
   "display": "standalone",
   "theme_color": "#E6E6FA",
   "background_color": "#E6E6FA",
-  
+
   "icons": [
     {
       "src":"\/images/icons/ms-icon-512x512.png",
@@ -38,7 +38,7 @@
       "density": "2.0"
     },
     {
-      "src": "\/images/icons/android-icon-144x144.png",
+      "src": "\/lexpart-pwa/images/icons/android-icon-144x144.png",
       "sizes": "144x144",
       "type": "image\/png",
       "density": "3.0"
