@@ -1,0 +1,176 @@
+/*Promo section*/
+.promo {
+  background: url("../image/main/slide-3.jpg") center no-repeat;
+  height: 750px;
+  background-size: cover;
+}
+.section:first-child {
+  margin-top: 0;
+  align-items: center;
+}
+.promo__info {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+}
+.promo__info-heading h2 {
+  font-size: 36px;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+.promo__info-tagline p {
+  font-size: 20px;
+}
+.promo__info-button {
+  width: 250px;
+  margin-top: 42px;
+  text-align: center;
+}
+
+/*About section*/
+.about p {
+  font-size: 18px;
+}
+.about {
+  position: relative;
+}
+.about .right-shape {
+  right: 20px;
+  width: 150px;
+  top: 100px;
+}
+.about__info-list {
+  margin-top: 20px;
+  font-size: 16px;
+  display: grid;
+  grid-template-areas: ".";
+  grid-row-gap: 10px;
+}
+.about__info-item {
+  position: relative;
+  padding-left: 20px;
+}
+.about__info-item:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #3391aa;
+}
+
+/*Benefits section*/
+.benefits__list {
+  display: grid;
+  grid-template-areas:
+    ". . ."
+    ". . .";
+  grid-row-gap: 50px;
+  grid-column-gap: 50px;
+}
+.benefits__item {
+  text-align: center;
+}
+.benefits__item h3 {
+  text-transform: uppercase;
+  font-size: 17px;
+  font-weight: 600;
+  color: #000000;
+}
+.benefits__item-icon {
+  display: block;
+  margin-bottom: 20px;
+  font-size: 45px;
+  transition: 0.5s;
+}
+.benefits__item span:hover {
+  color: #ff9633;
+}
+
+/*Team section*/
+.team {
+  background: #e4eff1;
+  padding: 20px 0;
+}
+.team__list {
+  display: grid;
+  grid-template-areas: ". . . .";
+  grid-column-gap: 15px;
+}
+.team__member {
+  display: grid;
+  grid-template-areas: ".";
+  grid-row-gap: 15px;
+  justify-items: center;
+  text-align: center;
+}
+.team__member img {
+  max-width: 200px;
+  max-height: 190px;
+}
+.team__description h4 {
+  color: #3391aa;
+  transition: 0.5s;
+}
+.team__description h4:hover {
+  color: #ff9633;
+}
+
+/*Tariffs section*/
+.tariffs__list {
+  display: grid;
+  grid-template-areas: ". . .";
+  grid-column-gap: 20px;
+  text-align: center;
+  font-size: 18px;
+}
+.tariffs__item {
+  display: grid;
+  grid-template-areas: ".";
+  grid-row-gap: 20px;
+  justify-items: center;
+}
+.tariffs__item-price {
+  font-weight: normal;
+  color: #3391aa;
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.37);
+  border-top: 1px solid rgba(0, 0, 0, 0.37);
+  width: 100%;
+}
+
+/*Adaptation*/
+@media only screen and (max-width: 1000px) {
+  .benefits__list {
+    grid-template-areas:
+      ". ."
+      ". ."
+      ". .";
+  }
+  .team__list {
+    grid-template-areas:
+      ". ."
+      ". .";
+  }
+}
+@media only screen and (max-width: 800px) {
+  .tariffs__list {
+    grid-template-areas: ".";
+    grid-row-gap: 20px;
+  }
+}
+@media only screen and (max-width: 500px) {
+  .benefits__list {
+    grid-template-areas: ".";
+  }
+  .team__list {
+    grid-template-areas: ".";
+  }
+}
+@media only screen and (max-width: 400px) {
+  .promo .section__container {
+    padding: 0 10px;
+  }
+}

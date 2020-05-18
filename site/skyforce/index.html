@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Skyforce</title>
+    <link rel="stylesheet" href="../assets/styles/font-awesome.min.css" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Oswald:400,300,700"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link rel="stylesheet" href="../assets/styles/common.css" />
+    <link rel="stylesheet" href="../assets/styles/login.css" />
+  </head>
+  <body>
+    <main class="main">
+      <form class="sign__form">
+        <div class="sign__form-nav">
+          <div class="sign__form-buttons">
+            <a id="signInButton"></a>
+            <a id="signUpButton"></a>
+          </div>
+          <label class="switch">
+            <label for="languageSwitcher" class="switch__label"></label>
+            <input type="checkbox" id="languageSwitcher" />
+            <span class="switch__slider"></span>
+          </label>
+        </div>
+        <div class="sign__form-body">
+          <div class="sign__form-input">
+            <input type="text" id="loginID" />
+            <input type="text" id="loginPassword" />
+          </div>
+          <div class="sign__form-checkbox">
+            <input type="checkbox" id="rememberMe" />
+            <label for="rememberMe" id="signFormLabel"></label>
+          </div>
+        </div>
+        <button id="formButton" class="sign__form-button"></button>
+      </form>
+    </main>
+    <script defer src="../assets/scripts/jquery-2.1.1.min.js"></script>
+    <script defer src="../assets/scripts/signFormHandler.js"></script>
+  </body>
+</html>
