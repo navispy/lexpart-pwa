@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>lexpart</title>
+    <title>Skyforce</title>
     <link href="./styles/style.css" rel="stylesheet" />
     <link href="./manifest.json" rel="manifest" />
     <link
@@ -83,15 +83,15 @@
     <meta content="#ffffff" name="theme-color" />
     <script>
       if ("serviceWorker" in navigator) {
-        window.addEventListener("load", function() {
+        window.addEventListener("load", function () {
           navigator.serviceWorker.register("sw.js").then(
-            function(registration) {
+            function (registration) {
               console.log(
                 "ServiceWorker registration successful with scope: ",
                 registration.scope
               );
             },
-            function(err) {
+            function (err) {
               console.log("ServiceWorker registration failed: ", err);
             }
           );
@@ -100,15 +100,18 @@
     </script>
 
     <script defer src="scripts/jquery.js"></script>
-    <script defer src="scripts/inputmask%20lib/dist/jquery.inputmask.js"></script>
+    <script
+      defer
+      src="scripts/inputmask%20lib/dist/jquery.inputmask.js"
+    ></script>
     <script defer src="scripts/getSections.js"></script>
     <script defer src="scripts/getQuestions.js"></script>
     <script defer src="scripts/render.js"></script>
   </head>
   <body>
     <main>
-      <div id="page-main">
-        <button class="add-button" id="add-button" onclick="createNewDocs()">
+      <div id="pageMain">
+        <button class="add-button" id="addButton" onclick="createNewDocs()">
           <img
             alt="add button"
             class="add-button__img"

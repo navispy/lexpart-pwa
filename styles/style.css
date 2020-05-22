@@ -55,7 +55,7 @@ main {
   font-size: 18px;
   margin: 0;
 }
-.doc-button {
+.doc__button {
   border: none;
   background: none;
 }
@@ -145,17 +145,17 @@ footer {
   background: royalblue;
   color: white;
 }
-.question__answer_buttons {
+.question-answer__buttons {
   display: grid;
   grid-template-areas: ".";
   grid-row-gap: 5px;
   justify-self: center;
   margin-bottom: 10px;
 }
-.dropdown__menu {
+.dropdown-menu {
   display: none;
 }
-.dropdown__menu-button {
+.dropdown-menu__button {
   display: grid;
   justify-items: center;
 }

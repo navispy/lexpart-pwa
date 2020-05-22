@@ -1,4 +1,4 @@
-const homeScreen = $("#page-main");
+const homeScreen = $("#pageMain");
 let isDocs = false;
 let hasConnection = true;
 let answer = {};
@@ -10,52 +10,50 @@ const inputHandler = (fieldName, fieldValue = "", type) => {
 };
 
 const generateDocs = (data) => {
-  $("#add-button").after('<div class="docs" id="docs"></div>');
+  $("#addButton").after('<div class="docs" id="docs"></div>');
 
   if (hasConnection) {
     data.forEach((dataObject) => {
       if (dataObject.ID !== "" && dataObject.Name !== "") {
         $("#docs").append(
-          `<button class="doc-button" id="doc-button"><div class="doc-section"><img src="images/command_new_document_color.svg" alt="new document"><p>${dataObject.Name}</p></div></button>`
+          `<button class="doc__button" id="docButton"><div class="doc__section"><img src="images/command_new_document_color.svg" alt="new document"><p>${dataObject.Name}</p></div></button>`
         );
-        $("#doc-button").click(() => {
+        document.getElementById("docButton").ondblclick = () =>
           getQuestions(dataObject.ID).then((questions) => {
             generateQuestions(JSON.parse(questions));
           });
-        });
       }
     });
   } else {
-    $("#docs").prepend('<p class="doc-errors">Нет соединения с сервером</p>');
+    $("#docs").prepend('<p class="doc__error">Нет соединения с сервером</p>');
   }
 };
 
 const generateSection = (data) => {
-  $("#add-button").after('<div class="docs-list" id="docs-list"></div>');
+  $("#addButton").after('<div class="docs-list" id="docsList"></div>');
 
   if (hasConnection) {
-    $("#docs-list").prepend(
+    $("#docsList").prepend(
       "<div class='docs-list__header'><p>Номер</p><p>Документ</p></div>"
     );
 
     data.forEach((dataObject) => {
       if (dataObject.ID !== "" && dataObject.Name !== "") {
-        $("#docs-list").append(
-          `<button class="docs-list__button" id="docs-list__button"><div class="docs-list__section"><p>${dataObject.ID}</p><p>${dataObject.Name}</p></div></button>`
+        $("#docsList").append(
+          `<button class="docs-list__button" id="docsListButton"><div class="docs-list__section"><p>${dataObject.ID}</p><p>${dataObject.Name}</p></div></button>`
         );
-        $("#doc-button").click(() =>
+        document.getElementById("docsListButton").ondblclick = () =>
           getQuestions(dataObject.ID).then((questions) => {
             // console.log(JSON.parse(questions)); //all data
             generateQuestions([
               JSON.parse(questions)[13],
               JSON.parse(questions)[0],
             ]);
-          })
-        );
+          });
       }
     });
   } else {
-    $("#docs-list").append(
+    $("#docsList").append(
       '<p class="docs-list__errors">Нет соединения с сервером</p>'
     );
   }
@@ -65,7 +63,7 @@ const createNewDocs = () => {
   isDocs = !isDocs;
 
   if (isDocs) {
-    $("#docs-list").detach();
+    $("#docsList").detach();
     getSections()
       .then((data) => {
         generateDocs(data);
@@ -146,17 +144,17 @@ const generateQuestions = (questionsArray) => {
     }
     buttonsOnQuestions = idCount;
 
-    return `<div class="question__answer_buttons ${
+    return `<div class="question-answer__buttons ${
       buttonsOnQuestions > 3 ? "dropdown__menu" : ""
     }">${buttons}</div>${
       buttonsOnQuestions > 3
-        ? '<div class="dropdown__menu-button"><button id="dropdownMenuButton">Развернуть</button></div>'
+        ? '<div class="dropdown-menu__button"><button id="dropdownMenuButton">Развернуть</button></div>'
         : ""
     }`;
   };
 
   $("main").append(
-    `<div id="question-page" class="question-page"><div class="question-page__nav-buttons"><button id='back-button'>Назад</button><button id='save-button' style='display: none'>Cформировать</button><button id='next-button'>Вперед</button></div></div>`
+    `<div id="questionPage" class="question-page"><div class="question-page__nav-buttons"><button id='back-button'>Назад</button><button id='save-button' style='display: none'>Cформировать</button><button id='next-button'>Вперед</button></div></div>`
   );
 
   const inputValidation = (fieldType, id) => {
@@ -171,9 +169,9 @@ const generateQuestions = (questionsArray) => {
   };
 
   const handlerSettings = () => {
-    currentPage = $("#question-page");
+    currentPage = $("#questionPage");
     $("#dropdownMenuButton").click(function () {
-      $(".question__answer_buttons").toggleClass("dropdown__menu");
+      $(".question-answer__buttons").toggleClass("dropdown-menu");
       $(this).text() === "Развернуть"
         ? $(this).text("Свернуть")
         : $(this).text("Развернуть");
@@ -190,7 +188,7 @@ const generateQuestions = (questionsArray) => {
 
       for (let count = 1; count < buttonsOnQuestions + 1; count++) {
         $(`#${id + count}`).click(function () {
-          $(`.question__answer_buttons`)
+          $(`.question-answer__buttons`)
             .find(".clicked")
             .removeClass("clicked");
           $(this).toggleClass("clicked");
@@ -372,7 +370,7 @@ const generateQuestions = (questionsArray) => {
     return `<div id="questions" class="questions">${html}</div>`;
   };
 
-  $("#question-page").prepend(`${generateQuestionHtml(currentQuestion)}`);
+  $("#questionPage").prepend(`${generateQuestionHtml(currentQuestion)}`);
 
   handlerSettings();
   buttonsSettings();
