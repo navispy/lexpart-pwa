@@ -10,128 +10,62 @@ const inputHandler = (fieldName, fieldValue = "", type) => {
 };
 
 const generateDocs = (data) => {
-  const addButton = document.getElementById("add-button");
-  let divDocs = document.createElement("div");
-
-  divDocs.className = "docs";
-  divDocs.id = "docs";
-
-  addButton.after(divDocs);
+  $("#add-button").after('<div class="docs" id="docs"></div>');
 
   if (hasConnection) {
-    const revData = data.reverse();
-
-    revData.forEach((dataObject) => {
+    data.forEach((dataObject) => {
       if (dataObject.ID !== "" && dataObject.Name !== "") {
-        let div = document.createElement("div");
-        let img = document.createElement("img");
-        let pName = document.createElement("p");
-        let button = document.createElement("button");
-
-        div.className = "doc-section";
-        img.src = "./images/command_new_document_color.svg";
-        img.alt = "new document";
-        pName.innerHTML = `${dataObject.Name}`;
-
-        button.className = "doc-button";
-        button.id = "doc-button";
-        button.ondblclick = () =>
+        $("#docs").append(
+          `<button class="doc-button" id="doc-button"><div class="doc-section"><img src="images/command_new_document_color.svg" alt="new document"><p>${dataObject.Name}</p></div></button>`
+        );
+        $("#doc-button").click(() => {
           getQuestions(dataObject.ID).then((questions) => {
             generateQuestions(JSON.parse(questions));
           });
-
-        button.prepend(div);
-        div.prepend(img);
-        img.after(pName);
-
-        divDocs.prepend(button);
+        });
       }
     });
   } else {
-    let p = document.createElement("p");
-
-    p.innerHTML = "Нет соединения с сервером";
-
-    p.className = "doc-errors";
-
-    addButton.after(divDocs);
-    divDocs.prepend(p);
+    $("#docs").prepend('<p class="doc-errors">Нет соединения с сервером</p>');
   }
 };
 
 const generateSection = (data) => {
-  const addButton = document.getElementById("add-button");
-  let divSections = document.createElement("div");
-
-  divSections.className = "docs-list";
-  divSections.id = "docs-list";
+  $("#add-button").after('<div class="docs-list" id="docs-list"></div>');
 
   if (hasConnection) {
-    const revData = data.reverse();
+    $("#docs-list").prepend(
+      "<div class='docs-list__header'><p>Номер</p><p>Документ</p></div>"
+    );
 
-    let divSectionsHeader = document.createElement("div");
-    let pNumber = document.createElement("p");
-    let pDoc = document.createElement("p");
-
-    divSectionsHeader.className = "docs-list__header";
-
-    pNumber.innerHTML = "Номер";
-    pDoc.innerHTML = "Документ";
-
-    addButton.after(divSections);
-    divSections.prepend(divSectionsHeader);
-    divSectionsHeader.prepend(pNumber);
-    pNumber.after(pDoc);
-
-    revData.forEach((dataObject) => {
+    data.forEach((dataObject) => {
       if (dataObject.ID !== "" && dataObject.Name !== "") {
-        let div = document.createElement("div");
-        let pId = document.createElement("p");
-        let pName = document.createElement("p");
-        let button = document.createElement("button");
-
-        button.className = "docs-list__button";
-        button.id = "docs-list__button";
-        button.ondblclick = () =>
+        $("#docs-list").append(
+          `<button class="docs-list__button" id="docs-list__button"><div class="docs-list__section"><p>${dataObject.ID}</p><p>${dataObject.Name}</p></div></button>`
+        );
+        $("#doc-button").click(() =>
           getQuestions(dataObject.ID).then((questions) => {
             // console.log(JSON.parse(questions)); //all data
             generateQuestions([
               JSON.parse(questions)[13],
               JSON.parse(questions)[0],
             ]);
-          });
-
-        div.className = "docs-list__section";
-
-        pId.innerHTML = `${dataObject.ID}`;
-        pName.innerHTML = `${dataObject.Name}`;
-
-        button.prepend(div);
-        div.prepend(pId);
-        pId.after(pName);
-
-        divSectionsHeader.after(button);
+          })
+        );
       }
     });
   } else {
-    let p = document.createElement("p");
-
-    p.innerHTML = "Нет соединения с сервером";
-
-    p.className = "docs-list__errors";
-
-    addButton.after(divSections);
-    divSections.prepend(p);
+    $("#docs-list").append(
+      '<p class="docs-list__errors">Нет соединения с сервером</p>'
+    );
   }
 };
 
 const createNewDocs = () => {
-  const divSections = document.getElementById("docs-list");
-  const divDocs = document.getElementById("docs");
   isDocs = !isDocs;
 
   if (isDocs) {
-    divSections.remove();
+    $("#docs-list").detach();
     getSections()
       .then((data) => {
         generateDocs(data);
@@ -142,7 +76,7 @@ const createNewDocs = () => {
         generateDocs();
       });
   } else {
-    divDocs.remove();
+    $("#docs").detach();
     generateSection([{ ID: "1", Name: "some doc" }]);
   }
 };
@@ -155,6 +89,7 @@ const generateQuestions = (questionsArray) => {
   let hasAnswers = false;
   let tableQuestions = {};
   let selectedTableList = [];
+  let buttonsOnQuestions = 0;
 
   const updateId = (id) => {
     return $(`#${id}`).length ? `${id}1` : id;
@@ -196,42 +131,32 @@ const generateQuestions = (questionsArray) => {
 
   const generateButton = (
     id,
-    buttonsValue = { firstValue: "Да", secondValue: "Нет" }
+    buttonsValue = {
+      firstValue: "Запись 1",
+      secondValue: "Запись 2",
+      tValue: "Запись 3",
+    }
   ) => {
     let buttons = ``;
-    let idCount = 1;
+    let idCount = 0;
 
     for (let key in buttonsValue) {
-      buttons += `<button id=${id + idCount}>${buttonsValue[key]}</button>`;
-
       idCount++;
+      buttons += `<button id=${id + idCount}>${buttonsValue[key]}</button>`;
     }
-    return `<div class="question__answer_buttons">${buttons}</div>`;
-  };
+    buttonsOnQuestions = idCount;
 
-  const chooseButtons = (type, id) => {
-    switch (type) {
-      case "navButtons":
-        return "<div class=\"question-page__nav-buttons\"><button id='back-button'>Назад</button><button id='save-button' style='display: none'>Cформировать</button><button id='next-button'>Вперед</button></div>";
-      case "Boolean":
-        return generateButton(id);
-      case "CalendarOrBankDays":
-        return generateButton(id, {
-          1: "Календарных дней",
-          2: "Банковских дней",
-        });
-      case "NoPaymentOrPartial":
-        return generateButton(
-          id,
-          "Оплата произведена частично",
-          "Оплата не производилась"
-        );
-    }
+    return `<div class="question__answer_buttons ${
+      buttonsOnQuestions > 3 ? "dropdown__menu" : ""
+    }">${buttons}</div>${
+      buttonsOnQuestions > 3
+        ? '<div class="dropdown__menu-button"><button id="dropdownMenuButton">Развернуть</button></div>'
+        : ""
+    }`;
   };
 
   $("main").append(
-    `<div id="question-page" class="question-page">
-     ${chooseButtons("navButtons")}</div>`
+    `<div id="question-page" class="question-page"><div class="question-page__nav-buttons"><button id='back-button'>Назад</button><button id='save-button' style='display: none'>Cформировать</button><button id='next-button'>Вперед</button></div></div>`
   );
 
   const inputValidation = (fieldType, id) => {
@@ -247,28 +172,31 @@ const generateQuestions = (questionsArray) => {
 
   const handlerSettings = () => {
     currentPage = $("#question-page");
+    $("#dropdownMenuButton").click(function () {
+      $(".question__answer_buttons").toggleClass("dropdown__menu");
+      $(this).text() === "Развернуть"
+        ? $(this).text("Свернуть")
+        : $(this).text("Развернуть");
+    });
 
     currFieldName.forEach((fieldName, i) => {
       let id = fieldName + i;
 
       inputValidation(currFieldType[i], id);
 
-      answer[fieldName] === 1
-        ? $(`#${id + 1}`).addClass("clicked")
-        : answer[fieldName] === 2
-        ? $(`#${id + 2}`).addClass("clicked")
-        : "";
+      typeof answer[fieldName] === "number"
+        ? $(`#${id + answer[fieldName]}`).addClass("clicked")
+        : null;
 
-      $(`#${id + 1}`).click(function () {
-        $(`#${id + 2}`).removeClass("clicked");
-        $(this).toggleClass("clicked");
-        inputHandler(fieldName, 1, currFieldType[i]);
-      });
-      $(`#${id + 2}`).click(function () {
-        $(`#${id + 1}`).removeClass("clicked");
-        $(this).toggleClass("clicked");
-        inputHandler(fieldName, 2, currFieldType[i]);
-      });
+      for (let count = 1; count < buttonsOnQuestions + 1; count++) {
+        $(`#${id + count}`).click(function () {
+          $(`.question__answer_buttons`)
+            .find(".clicked")
+            .removeClass("clicked");
+          $(this).toggleClass("clicked");
+          inputHandler(fieldName, count, currFieldType[i]);
+        });
+      }
 
       if (currFieldType[i] === "6") {
         const tableAnswers = answer[fieldName];
@@ -380,27 +308,7 @@ const generateQuestions = (questionsArray) => {
       let id = question.FieldName + i;
 
       if (question.FieldType === "3") {
-        $.ajax({
-          async: false,
-          url: "../../skyforce/server.php",
-          type: "POST",
-          dataType: "json",
-          data: {
-            function: "getLookupValues",
-          },
-          success: function (data) {
-            console.log(data)
-            }
-          ,
-          error: function (data) {
-            console.log(data)
-          },
-        });
-
-        const buttons =
-          "LookupSubstitute" in question
-            ? generateButton(id, question["LookupSubstitute"])
-            : chooseButtons(question.LookupTable, id); // Тут происходит генерация списка кнопок, функция generateButton генерирует спискок ответ (принимает id и обьект вида {Любое название:"значение которое тут написано будет выведено в списке ответо"}
+        const buttons = generateButton(id);
 
         html += `<div id='question' class="question">
         <p>${question.FieldText}</p>
@@ -438,7 +346,7 @@ const generateQuestions = (questionsArray) => {
           tableList += `<div class='question-table__list' id='question-table__list${count}'>${tableItem}</div>`;
         }
 
-        html = `<div id='question' class="question"><p>${question.FieldText}</p>
+        html += `<div id='question' class="question"><p>${question.FieldText}</p>
         <div class="question-table">
         <div class="question-table__buttons">
         <button id="plusButton" class="question-table__button-plus">+</button><button id="minusButton" class="question-table__button-minus">-</button>

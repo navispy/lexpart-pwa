@@ -100,7 +100,7 @@ footer {
   display: grid;
   grid-template-columns: 80px 1fr;
 }
-.docs-list div p:first-child{
+.docs-list div p:first-child {
   justify-self: start;
   margin-left: 5px;
 }
@@ -125,7 +125,7 @@ footer {
   cursor: pointer;
   width: 100%;
 }
-.docs-list__button p{
+.docs-list__button p {
   font-size: 20px;
 }
 
@@ -145,6 +145,20 @@ footer {
   background: royalblue;
   color: white;
 }
+.question__answer_buttons {
+  display: grid;
+  grid-template-areas: ".";
+  grid-row-gap: 5px;
+  justify-self: center;
+  margin-bottom: 10px;
+}
+.dropdown__menu {
+  display: none;
+}
+.dropdown__menu-button {
+  display: grid;
+  justify-items: center;
+}
 .question-page input {
   max-width: 300px;
   height: 20px;
@@ -158,7 +172,7 @@ footer {
   justify-content: space-between;
 }
 
-.question-table__main-list{
+.question-table__main-list {
   overflow: auto;
   max-height: 400px;
 }
