@@ -276,6 +276,7 @@ const generateQuestions = (questionsArray, questionsID, readyAnswers) => {
   };
 
   const buttonsSettings = () => {
+    selectedTableList = []
     selectTableQuestion()
 
     $("#plusButton").click(() => {
