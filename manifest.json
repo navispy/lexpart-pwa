@@ -1,8 +1,8 @@
 {
-  "name": "lexpart",
-  "short_name": "lexpart",
+  "name": "Skyforce",
+  "short_name": "Skyforce",
   "lang": "en-EN",
-  "start_url": "/",
+  "start_url": "../",
   "display": "standalone",
   "theme_color": "#E6E6FA",
   "background_color": "#E6E6FA",

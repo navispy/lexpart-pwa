@@ -1,13 +1,7 @@
 const homeScreen = $("#pageMain");
 let isDocs = false;
 let hasConnection = true;
-let answer = {};
 let currentPage = homeScreen;
-
-const inputHandler = (fieldName, fieldValue = "", type) => {
-  answer[fieldName] = fieldValue;
-  console.log(answer);
-};
 
 const generateDocs = (data) => {
   $("#addButton").after('<div class="docs" id="docs"></div>');
@@ -15,13 +9,18 @@ const generateDocs = (data) => {
   if (hasConnection) {
     data.forEach((dataObject) => {
       if (dataObject.ID !== "" && dataObject.Name !== "") {
+        console.log(dataObject.ID);
         $("#docs").append(
-          `<button class="doc__button" id="docButton"><div class="doc__section"><img src="images/command_new_document_color.svg" alt="new document"><p>${dataObject.Name}</p></div></button>`
+          `<button class="doc__button" id='docButton${dataObject.ID}'><div class="doc__section"><img src="images/command_new_document_color.svg" alt="new document"><p>${dataObject.Name}</p></div></button>`
         );
-        document.getElementById("docButton").ondblclick = () =>
+        $(`#docButton${dataObject.ID}`).dblclick(function () {
           getQuestions(dataObject.ID).then((questions) => {
-            generateQuestions(JSON.parse(questions));
+            generateQuestions(
+              JSON.parse(questions),
+              dataObject.ID + "id" + new Date().getTime()
+            );
           });
+        });
       }
     });
   } else {
@@ -30,6 +29,8 @@ const generateDocs = (data) => {
 };
 
 const generateSection = (data) => {
+  let answersFromStorage =
+    JSON.parse(localStorage.getItem("lexpart.pwa")) || {};
   $("#addButton").after('<div class="docs-list" id="docsList"></div>');
 
   if (hasConnection) {
@@ -37,21 +38,24 @@ const generateSection = (data) => {
       "<div class='docs-list__header'><p>Номер</p><p>Документ</p></div>"
     );
 
-    data.forEach((dataObject) => {
-      if (dataObject.ID !== "" && dataObject.Name !== "") {
-        $("#docsList").append(
-          `<button class="docs-list__button" id="docsListButton"><div class="docs-list__section"><p>${dataObject.ID}</p><p>${dataObject.Name}</p></div></button>`
-        );
-        document.getElementById("docsListButton").ondblclick = () =>
-          getQuestions(dataObject.ID).then((questions) => {
-            // console.log(JSON.parse(questions)); //all data
-            generateQuestions([
-              JSON.parse(questions)[13],
-              JSON.parse(questions)[0],
-            ]);
+    for (let key in answersFromStorage) {
+      data.forEach((dataObject) => {
+        if (key.slice(0, key.indexOf("id")) === dataObject.ID) {
+          $("#docsList").append(
+            `<button class="docs-list__button" id="${key}"><div class="docs-list__section"><p>${dataObject.ID}</p><p>${dataObject.Name}</p></div></button>`
+          );
+          $(`#${key}`).dblclick(function () {
+            getQuestions(dataObject.ID).then((questions) => {
+              generateQuestions(
+                [JSON.parse(questions)[13], JSON.parse(questions)[0]],
+                key,
+                JSON.parse(localStorage.getItem("lexpart.pwa"))[key]
+              );
+            });
           });
-      }
-    });
+        }
+      });
+    }
   } else {
     $("#docsList").append(
       '<p class="docs-list__errors">Нет соединения с сервером</p>'
@@ -75,12 +79,21 @@ const createNewDocs = () => {
       });
   } else {
     $("#docs").detach();
-    generateSection([{ ID: "1", Name: "some doc" }]);
+    getSections()
+      .then((data) => {
+        generateSection(data);
+      })
+      .catch((reason) => {
+        console.log("mistake", reason);
+        hasConnection = false;
+        generateSection();
+      });
   }
 };
 
-const generateQuestions = (questionsArray) => {
+const generateQuestions = (questionsArray, questionsID, readyAnswers) => {
   homeScreen.detach();
+  let answers = Object.assign({}, readyAnswers);
   let currentQuestion = 0;
   let currFieldType = [];
   let currFieldName = [];
@@ -93,12 +106,17 @@ const generateQuestions = (questionsArray) => {
     return $(`#${id}`).length ? `${id}1` : id;
   };
 
+  const inputHandler = (fieldName, fieldValue = "", type) => {
+    answers[fieldName] = fieldValue;
+    console.log(answers);
+  };
+
   const generateTable = () => {
     const tableAnswers = {};
     let tableItem = "";
     tableQuestions.DetailFields.forEach((tableQuestion, j) => {
       let id = updateId(
-        tableQuestion.FieldName + j + answer[tableQuestions.FieldName].length
+        tableQuestion.FieldName + j + answers[tableQuestions.FieldName].length
       );
 
       if (currFieldType.length === 0) {
@@ -113,17 +131,17 @@ const generateQuestions = (questionsArray) => {
     });
 
     if (
-      answer.hasOwnProperty(tableQuestions.FieldName) ||
-      answer[tableQuestions.FieldName] === ""
+      answers.hasOwnProperty(tableQuestions.FieldName) ||
+      answers[tableQuestions.FieldName] === ""
     ) {
-      answer[tableQuestions.FieldName] = [
-        ...answer[tableQuestions.FieldName],
+      answers[tableQuestions.FieldName] = [
+        ...answers[tableQuestions.FieldName],
         tableAnswers,
       ];
     }
 
     return `<div class="question-table__list" id = ${updateId(
-      `question-table__list${answer[tableQuestions.FieldName].length - 1}`
+      `question-table__list${answers[tableQuestions.FieldName].length - 1}`
     )}>${tableItem}</div>`;
   };
 
@@ -133,6 +151,7 @@ const generateQuestions = (questionsArray) => {
       firstValue: "Запись 1",
       secondValue: "Запись 2",
       tValue: "Запись 3",
+      sValue: "Запись 4",
     }
   ) => {
     let buttons = ``;
@@ -145,7 +164,7 @@ const generateQuestions = (questionsArray) => {
     buttonsOnQuestions = idCount;
 
     return `<div class="question-answer__buttons ${
-      buttonsOnQuestions > 3 ? "dropdown__menu" : ""
+      buttonsOnQuestions > 3 ? "dropdown-menu" : ""
     }">${buttons}</div>${
       buttonsOnQuestions > 3
         ? '<div class="dropdown-menu__button"><button id="dropdownMenuButton">Развернуть</button></div>'
@@ -170,20 +189,14 @@ const generateQuestions = (questionsArray) => {
 
   const handlerSettings = () => {
     currentPage = $("#questionPage");
-    $("#dropdownMenuButton").click(function () {
-      $(".question-answer__buttons").toggleClass("dropdown-menu");
-      $(this).text() === "Развернуть"
-        ? $(this).text("Свернуть")
-        : $(this).text("Развернуть");
-    });
 
     currFieldName.forEach((fieldName, i) => {
       let id = fieldName + i;
 
       inputValidation(currFieldType[i], id);
 
-      typeof answer[fieldName] === "number"
-        ? $(`#${id + answer[fieldName]}`).addClass("clicked")
+      typeof answers[fieldName] === "number"
+        ? $(`#${id + answers[fieldName]}`).addClass("clicked")
         : null;
 
       for (let count = 1; count < buttonsOnQuestions + 1; count++) {
@@ -197,11 +210,11 @@ const generateQuestions = (questionsArray) => {
       }
 
       if (currFieldType[i] === "6") {
-        const tableAnswers = answer[fieldName];
+        const tableAnswers = answers[fieldName];
 
         for (
           let count = 0;
-          count <= answer[tableQuestions.FieldName].length - 1;
+          count <= answers[tableQuestions.FieldName].length - 1;
           count++
         ) {
           for (let j = 0; j < currFieldName.length - 1; j++) {
@@ -229,7 +242,7 @@ const generateQuestions = (questionsArray) => {
         inputHandler(fieldName, tableAnswers, currFieldType[i]);
       } else
         $(`#${id}`)
-          .val(`${answer[fieldName]}`)
+          .val(`${answers[fieldName]}`)
           .change(() =>
             inputHandler(fieldName, $(`#${id}`).val(), currFieldType[i])
           );
@@ -256,14 +269,14 @@ const generateQuestions = (questionsArray) => {
     };
 
     plusButton
-      ? tableListHandler(answer[tableQuestions.FieldName].length - 1)
-      : answer[tableQuestions.FieldName].forEach((item, count) => {
+      ? tableListHandler(answers[tableQuestions.FieldName].length - 1)
+      : answers[tableQuestions.FieldName].forEach((item, count) => {
           tableListHandler(count);
         });
   };
 
   const buttonsSettings = () => {
-    selectedTableList = [];
+    selectTableQuestion()
 
     $("#plusButton").click(() => {
       $(".question-table__main-list").append(`${generateTable()}`);
@@ -274,11 +287,18 @@ const generateQuestions = (questionsArray) => {
     $("#minusButton").click(() => {
       selectedTableList.forEach((tableList) => {
         $(tableList.id).detach();
-        answer[tableQuestions.FieldName].splice(tableList.number, 1);
+        answers[tableQuestions.FieldName].splice(tableList.number, 1);
         selectedTableList = selectedTableList.filter(
           (item) => item.id !== tableList.id
         );
       });
+    });
+
+    $("#dropdownMenuButton").click(function () {
+      $(".question-answer__buttons").toggleClass("dropdown-menu");
+      $(this).text() === "Развернуть"
+        ? $(this).text("Свернуть")
+        : $(this).text("Развернуть");
     });
   };
 
@@ -299,8 +319,8 @@ const generateQuestions = (questionsArray) => {
       currFieldType.push(question.FieldType);
       currFieldName.push(question.FieldName);
 
-      if (!answer.hasOwnProperty(question.FieldName)) {
-        answer[question.FieldName] = "";
+      if (!answers.hasOwnProperty(question.FieldName)) {
+        answers[question.FieldName] = "";
       }
 
       let id = question.FieldName + i;
@@ -324,7 +344,7 @@ const generateQuestions = (questionsArray) => {
 
         for (
           let count = 0;
-          count <= answer[tableQuestions.FieldName].length - 1;
+          count <= answers[tableQuestions.FieldName].length - 1;
           count++
         ) {
           let tableItem = "";
@@ -356,10 +376,10 @@ const generateQuestions = (questionsArray) => {
         </div>`;
 
         if (
-          !answer.hasOwnProperty(tableQuestions.FieldName) ||
-          answer[tableQuestions.FieldName] === ""
+          !answers.hasOwnProperty(tableQuestions.FieldName) ||
+          answers[tableQuestions.FieldName] === ""
         ) {
-          answer[tableQuestions.FieldName] = tableAnswers;
+          answers[tableQuestions.FieldName] = tableAnswers;
         }
       } else {
         html += `<div id='question' class="question"><p>${question.FieldText}</p>
@@ -399,9 +419,9 @@ const generateQuestions = (questionsArray) => {
   $("#save-button").click(() => {
     hasAnswers = true;
 
-    for (let key in answer) {
-      if (typeof answer[key] === "object" && answer[key].length !== 0) {
-        answer[key].forEach((ans) => {
+    for (let key in answers) {
+      if (typeof answers[key] === "object" && answers[key].length !== 0) {
+        answers[key].forEach((ans) => {
           for (let keyInTable in ans) {
             if (ans[keyInTable] === "") {
               hasAnswers = false;
@@ -409,17 +429,21 @@ const generateQuestions = (questionsArray) => {
           }
         });
       } else {
-        if (answer[key] === "" || answer[key].length === 0) {
+        if (answers[key] === "" || answers[key].length === 0) {
           hasAnswers = false;
         }
       }
     }
 
     if (hasAnswers) {
+      let answersFromStorage =
+        JSON.parse(localStorage.getItem("lexpart.pwa")) || {};
+      answersFromStorage[questionsID] = answers;
       currentPage.detach();
       homeScreen.appendTo("main");
       alert("Документ сформирован");
-      console.log("Документ сформирован", JSON.stringify(answer));
+
+      localStorage.setItem("lexpart.pwa", JSON.stringify(answersFromStorage));
     } else alert("Дайте ответ на все вопросы");
   });
 };
@@ -434,7 +458,16 @@ if (isDocs) {
       hasConnection = false;
       generateDocs();
     });
-} else generateSection([{ ID: "1", Name: "some doc" }]);
+} else
+  getSections()
+    .then((data) => {
+      generateSection(data);
+    })
+    .catch((reason) => {
+      console.log("mistake", reason);
+      hasConnection = false;
+      generateSection();
+    });
 
 $("#homeButton").click(() => {
   currentPage.detach();
