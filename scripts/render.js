@@ -3,6 +3,28 @@ let isDocs = true;
 let hasConnection = true;
 let currentPage = homeScreen;
 
+const doubleClickMethod = (buttonId, dataObjectID, key) => {
+  let touchCount;
+  $(buttonId).on("click", function () {
+    if (!touchCount) {
+      touchCount = new Date().getTime();
+    } else {
+      if (new Date().getTime() - touchCount < 800) {
+        getQuestions(dataObjectID).then((questions) => {
+          generateQuestions(
+            JSON.parse(questions),
+            key,
+            JSON.parse(localStorage.getItem("lexpart.pwa"))[key]
+          );
+        });
+        touchCount = 0;
+      } else {
+        touchCount = new Date().getTime();
+      }
+    }
+  });
+};
+
 const switchToDocs = () => {
   isDocs = !isDocs;
 
@@ -42,14 +64,11 @@ const generateDocs = (data) => {
         $("#docs").append(
           `<button class="doc__button" id='docButton${dataObject.ID}'><div class="doc__section"><img src="images/command_new_document_color.svg" alt="new document"><p>${dataObject.Name}</p></div></button>`
         );
-        $(`#docButton${dataObject.ID}`).dblclick(function () {
-          getQuestions(dataObject.ID).then((questions) => {
-            generateQuestions(
-              JSON.parse(questions),
-              dataObject.ID + "id" + new Date().getTime()
-            );
-          });
-        });
+        doubleClickMethod(
+          `#docButton${dataObject.ID}`,
+          dataObject.ID,
+          dataObject.ID + "id" + new Date().getTime()
+        );
       }
     });
   } else {
@@ -73,15 +92,7 @@ const generateSection = (data) => {
           $("#docsList").append(
             `<button class="docs-list__button" id="${key}"><div class="docs-list__section"><p>${dataObject.ID}</p><p>${dataObject.Name}</p></div></button>`
           );
-          $(`#${key}`).dblclick(function () {
-            getQuestions(dataObject.ID).then((questions) => {
-              generateQuestions(
-                [JSON.parse(questions)[13], JSON.parse(questions)[0]],
-                key,
-                JSON.parse(localStorage.getItem("lexpart.pwa"))[key]
-              );
-            });
-          });
+          doubleClickMethod(`#${key}`, dataObject.ID, key);
         }
       });
     }
