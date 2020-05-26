@@ -1,7 +1,36 @@
 const homeScreen = $("#pageMain");
-let isDocs = false;
+let isDocs = true;
 let hasConnection = true;
 let currentPage = homeScreen;
+
+const switchToDocs = () => {
+  isDocs = !isDocs;
+
+  if (isDocs) {
+    $("#docsList").detach();
+    getSections()
+      .then((data) => {
+        generateDocs(data);
+      })
+      .catch((reason) => {
+        console.log("mistake", reason);
+        hasConnection = false;
+        generateDocs();
+      });
+  } else {
+    $("#docs").detach();
+    getSections()
+      .then((data) => {
+        generateSection(data);
+      })
+      .catch((reason) => {
+        console.log("mistake", reason);
+        hasConnection = false;
+        generateSection();
+      });
+  }
+};
+switchToDocs();
 
 const generateDocs = (data) => {
   $("#addButton").after('<div class="docs" id="docs"></div>');
@@ -60,34 +89,6 @@ const generateSection = (data) => {
     $("#docsList").append(
       '<p class="docs-list__errors">Нет соединения с сервером</p>'
     );
-  }
-};
-
-const createNewDocs = () => {
-  isDocs = !isDocs;
-
-  if (isDocs) {
-    $("#docsList").detach();
-    getSections()
-      .then((data) => {
-        generateDocs(data);
-      })
-      .catch((reason) => {
-        console.log("mistake", reason);
-        hasConnection = false;
-        generateDocs();
-      });
-  } else {
-    $("#docs").detach();
-    getSections()
-      .then((data) => {
-        generateSection(data);
-      })
-      .catch((reason) => {
-        console.log("mistake", reason);
-        hasConnection = false;
-        generateSection();
-      });
   }
 };
 
@@ -163,17 +164,17 @@ const generateQuestions = (questionsArray, questionsID, readyAnswers) => {
     }
     buttonsOnQuestions = idCount;
 
-    return `<div class="question-answer__buttons ${
-      buttonsOnQuestions > 3 ? "dropdown-menu" : ""
-    }">${buttons}</div>${
+    return `${
       buttonsOnQuestions > 3
         ? '<div class="dropdown-menu__button"><button id="dropdownMenuButton">Развернуть</button></div>'
         : ""
-    }`;
+    }<div class="question-answer__buttons ${
+      buttonsOnQuestions > 3 ? "dropdown-menu" : ""
+    }">${buttons}</div>`;
   };
 
   $("main").append(
-    `<div id="questionPage" class="question-page"><div class="question-page__nav-buttons"><button id='back-button'>Назад</button><button id='save-button' style='display: none'>Cформировать</button><button id='next-button'>Вперед</button></div></div>`
+    `<div id="questionPage" class="question-container"><div id="questionBlock" class="question-page"><div class="question-page__nav-buttons"><button id='back-button'>Назад</button><button id='save-button' style='display: none'>Cформировать</button><button id='next-button'>Вперед</button></div></div></div>`
   );
 
   const inputValidation = (fieldType, id) => {
@@ -276,8 +277,8 @@ const generateQuestions = (questionsArray, questionsID, readyAnswers) => {
   };
 
   const buttonsSettings = () => {
-    selectedTableList = []
-    selectTableQuestion()
+    selectedTableList = [];
+    answers[tableQuestions.FieldName] ? selectTableQuestion() : null;
 
     $("#plusButton").click(() => {
       $(".question-table__main-list").append(`${generateTable()}`);
@@ -391,7 +392,7 @@ const generateQuestions = (questionsArray, questionsID, readyAnswers) => {
     return `<div id="questions" class="questions">${html}</div>`;
   };
 
-  $("#questionPage").prepend(`${generateQuestionHtml(currentQuestion)}`);
+  $("#questionBlock").prepend(`${generateQuestionHtml(currentQuestion)}`);
 
   handlerSettings();
   buttonsSettings();
@@ -448,27 +449,6 @@ const generateQuestions = (questionsArray, questionsID, readyAnswers) => {
     } else alert("Дайте ответ на все вопросы");
   });
 };
-
-if (isDocs) {
-  getSections()
-    .then((data) => {
-      generateDocs(data);
-    })
-    .catch((reason) => {
-      console.log("mistake", reason);
-      hasConnection = false;
-      generateDocs();
-    });
-} else
-  getSections()
-    .then((data) => {
-      generateSection(data);
-    })
-    .catch((reason) => {
-      console.log("mistake", reason);
-      hasConnection = false;
-      generateSection();
-    });
 
 $("#homeButton").click(() => {
   currentPage.detach();

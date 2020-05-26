@@ -19,6 +19,7 @@ body {
 
 main {
   padding: 25px;
+  height: 90%;
 }
 
 .add-button {
@@ -130,10 +131,14 @@ footer {
 }
 
 .question-page {
-  max-width: 400px;
-  margin: 100px auto;
+  width: 400px;
   padding: 25px;
   border: 2px solid royalblue;
+}
+.question-container {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 70px;
 }
 .question-page button {
   border: 2px solid royalblue;
@@ -150,7 +155,8 @@ footer {
   grid-template-areas: ".";
   grid-row-gap: 5px;
   justify-self: center;
-  margin-bottom: 10px;
+  overflow: auto;
+  max-height: 90px;
 }
 .dropdown-menu {
   display: none;
@@ -158,6 +164,7 @@ footer {
 .dropdown-menu__button {
   display: grid;
   justify-items: center;
+  margin-bottom: 10px;
 }
 .question-page input {
   max-width: 300px;
