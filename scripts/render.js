@@ -12,7 +12,7 @@ const doubleClickMethod = (buttonId, dataObjectID, key) => {
       if (new Date().getTime() - touchCount < 800) {
         getQuestions(dataObjectID).then((questions) => {
           generateQuestions(
-            JSON.parse(questions),
+            [JSON.parse(questions)[13], JSON.parse(questions)[0]],
             key,
             JSON.parse(localStorage.getItem("lexpart.pwa"))[key]
           );
@@ -112,7 +112,6 @@ const generateQuestions = (questionsArray, questionsID, readyAnswers) => {
   let hasAnswers = false;
   let tableQuestions = {};
   let selectedTableList = [];
-  let buttonsOnQuestions = 0;
 
   const updateId = (id) => {
     return $(`#${id}`).length ? `${id}1` : id;
@@ -157,31 +156,20 @@ const generateQuestions = (questionsArray, questionsID, readyAnswers) => {
     )}>${tableItem}</div>`;
   };
 
-  const generateButton = (
+  const generateSelectList = (
     id,
-    buttonsValue = {
-      firstValue: "Запись 1",
-      secondValue: "Запись 2",
-      tValue: "Запись 3",
-      sValue: "Запись 4",
+    selectValue = {
+      firstValue: "value 1",
+      secondValue: "value 2",
+      tValue: "value 3",
     }
   ) => {
-    let buttons = ``;
-    let idCount = 0;
-
-    for (let key in buttonsValue) {
-      idCount++;
-      buttons += `<button id=${id + idCount}>${buttonsValue[key]}</button>`;
-    }
-    buttonsOnQuestions = idCount;
-
-    return `${
-      buttonsOnQuestions > 3
-        ? '<div class="dropdown-menu__button"><button id="dropdownMenuButton">Развернуть</button></div>'
-        : ""
-    }<div class="question-answer__buttons ${
-      buttonsOnQuestions > 3 ? "dropdown-menu" : ""
-    }">${buttons}</div>`;
+    let selectList = "";
+    selectValue.forEach(
+      (selectItemValue) =>
+        (selectList += `<option value=${selectItemValue}>${selectItemValue}</option>`)
+    );
+    return `<select class="question-answer__select-list" id="${id}">${selectList}</select>`;
   };
 
   $("main").append(
@@ -204,22 +192,6 @@ const generateQuestions = (questionsArray, questionsID, readyAnswers) => {
 
     currFieldName.forEach((fieldName, i) => {
       let id = fieldName + i;
-
-      inputValidation(currFieldType[i], id);
-
-      typeof answers[fieldName] === "number"
-        ? $(`#${id + answers[fieldName]}`).addClass("clicked")
-        : null;
-
-      for (let count = 1; count < buttonsOnQuestions + 1; count++) {
-        $(`#${id + count}`).click(function () {
-          $(`.question-answer__buttons`)
-            .find(".clicked")
-            .removeClass("clicked");
-          $(this).toggleClass("clicked");
-          inputHandler(fieldName, count, currFieldType[i]);
-        });
-      }
 
       if (currFieldType[i] === "6") {
         const tableAnswers = answers[fieldName];
@@ -252,12 +224,20 @@ const generateQuestions = (questionsArray, questionsID, readyAnswers) => {
         }
 
         inputHandler(fieldName, tableAnswers, currFieldType[i]);
-      } else
+      } else {
+        if (currFieldType[i] === "3" && answers[fieldName] === "") {
+          inputHandler(
+            fieldName,
+            $(`#${id} option`).first().val(),
+            currFieldType[i]
+          );
+        }
         $(`#${id}`)
           .val(`${answers[fieldName]}`)
-          .change(() =>
-            inputHandler(fieldName, $(`#${id}`).val(), currFieldType[i])
-          );
+          .change(function () {
+            inputHandler(fieldName, $(this).val(), currFieldType[i]);
+          });
+      }
     });
   };
 
@@ -306,13 +286,6 @@ const generateQuestions = (questionsArray, questionsID, readyAnswers) => {
         );
       });
     });
-
-    $("#dropdownMenuButton").click(function () {
-      $(".question-answer__buttons").toggleClass("dropdown-menu");
-      $(this).text() === "Развернуть"
-        ? $(this).text("Свернуть")
-        : $(this).text("Развернуть");
-    });
   };
 
   const generateQuestionHtml = (questionNum) => {
@@ -339,11 +312,9 @@ const generateQuestions = (questionsArray, questionsID, readyAnswers) => {
       let id = question.FieldName + i;
 
       if (question.FieldType === "3") {
-        const buttons = generateButton(id);
-
         html += `<div id='question' class="question">
         <p>${question.FieldText}</p>
-        ${buttons}</div>`;
+        ${generateSelectList(id, question.FixedList)}</div>`;
       } else if (question.FieldType === "6") {
         let tableList = "";
         const tableAnswers = [];
