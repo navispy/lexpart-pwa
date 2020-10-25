@@ -1,0 +1,20 @@
+<script type="text/javascript" bxrunfirst="true">
+var arAjaxPageData = {'TITLE':'Заявка на РКО','WINDOW_TITLE':'Заявка на РКО — Альфа-Банк','SCRIPTS':['/bitrix/js/main/core/core_ajax.js?149158094435797'],'NAV_CHAIN':''};
+top.BX.ajax.UpdatePageData(arAjaxPageData);
+</script><script type="text/javascript"></script><section class="infographics-section calc-request-section flc">
+    <div class="calc-request flc js-tabs js-tabs__animate" id="request-form">
+        <div class="calc-request_body">
+            <div class="calc-request_body-container">
+
+                <div class="form request-section__form">
+                    <div class="success-block-message">
+                        <div class="success-block-message_icon"><svg class="svg-icon svg-icon--80"><use xlink:href="#svg-icon-success-big"></use></svg></div>
+                        <h3 class="success-block-message_title">Заявка успешно отправлена</h3>
+                        <div class="success-block-message_subtitle">Спасибо! Ваша заявка отправлена. <br> Наши специалисты скоро свяжутся с вами.</div>
+                    </div
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
